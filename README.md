@@ -1,23 +1,16 @@
 # casino2016
 
-A reagent application designed to ... well, that part is up to you.
-
 ## Development Mode
 
 ### Run application:
 
+To run from command-line, do
 ```
-lein clean
-lein figwheel dev
+lein run
 ```
 
-Figwheel will automatically push cljs changes to the browser.
-
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
-
-## Production Build
-
+To run from repl with figwheel (after cider-jack-in), do:
 ```
-lein clean
-lein cljsbuild once min
+user=> (start)
 ```
+This function is defined in the ```dev/user.clj``` file.
