@@ -14,6 +14,7 @@
 
 (defn start
   []
+  (casino2016.handler/event-loop)
   (ra/start-figwheel! figwheel-config))
 
 (defn stop
