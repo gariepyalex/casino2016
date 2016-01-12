@@ -5,6 +5,7 @@
             [secretary.core :as secretary :include-macros true]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
+            [taoensso.sente  :as sente :refer (cb-success?)]
             [casino2016.home :as home]
             [casino2016.admin :as admin]
             [casino2016.game :as game]
@@ -12,6 +13,15 @@
   (:import goog.History))
 
 (enable-console-print!)
+
+(let [{:keys [chsk ch-recv send-fn state]}
+      (sente/make-channel-socket! "/chsk" ; Note the same path as before
+                                  {:type :auto})]
+  (def chsk       chsk)
+  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
+  (def chsk-send! send-fn) ; ChannelSocket's send API fn
+  (def chsk-state state)   ; Watchable, read-only atom
+  )
 
 (def app-dom-mount (js/document.getElementById "app"))
 
