@@ -2,4 +2,8 @@
 
 (defn page
   []
-  [:h1 "this is the home page"])
+  [:div
+   [:h1 "Casino IFT-GLO 2016"]
+   [:p [:a {:href "/#/admin"} "admin"]]
+   [:p [:a {:href "/#/game"} "game"]]
+   [:p [:a {:href "/#/player"} "player"]]])
