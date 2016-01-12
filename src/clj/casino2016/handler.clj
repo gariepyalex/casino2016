@@ -1,11 +1,13 @@
 (ns casino2016.handler
-  (:require [compojure.core :include-macros true :refer [defroutes GET POST]]
+  (:require [clojure.core.async :as async :refer [<! <!! chan go go-loop thread]]
+            [compojure.core :include-macros true :refer [defroutes GET POST]]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :as response]
             [hiccup.page :as hiccup]
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]))
+
 
 (def web-app (hiccup/html5
               [:html
@@ -23,11 +25,11 @@
               ajax-get-or-ws-handshake-fn
               connected-uids]}
       (sente/make-channel-socket! sente-web-server-adapter {})]
-  (def ring-ajax-post                ajax-post-fn)
-  (def ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
-  (def ch-chsk                       ch-recv)
-  (def chsk-send!                    send-fn)
-  (def connected-uids                connected-uids))
+  (defonce ring-ajax-post                ajax-post-fn)
+  (defonce ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
+  (defonce ch-chsk                       ch-recv)
+  (defonce chsk-send!                    send-fn)
+  (defonce connected-uids                connected-uids))
 
 (defroutes handler
   (GET "/" [] web-app)
@@ -37,3 +39,10 @@
   (route/resources "/"))
 
 (def app (wrap-defaults handler site-defaults))
+
+(defn event-loop
+  []
+  (go-loop [event (<! ch-chsk)]
+    (println (:id event))
+    (println (:?data event))
+    (recur (<! ch-chsk))))

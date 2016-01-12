@@ -1,5 +1,7 @@
 (ns casino2016.core
-  (:require [secretary.core :as secretary :refer-macros [defroute]]
+  (:require-macros [cljs.core.async.macros :as asyncm :refer (go go-loop)])
+  (:require [cljs.core.async :as async :refer [timeout <!]]
+            [secretary.core :as secretary :refer-macros [defroute]]
             [reagent.core :as reagent]
             [reagent.session :as session]
             [secretary.core :as secretary :include-macros true]
@@ -64,4 +66,14 @@
   (hook-browser-navigation!)
   (mount-root))
 
+(defn ping-each-second
+  "Send an event to server each second. For testing purposes."
+  []
+  (go-loop [second 1]
+    (<! (timeout 1000))
+    (chsk-send! [:core/ping {:elapsed second}])
+    (recur (inc second))))
+
 (init!)
+(ping-each-second)
+(println "page has loaded")

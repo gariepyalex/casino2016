@@ -18,4 +18,5 @@
 
 (defn -main
   [& port]
+  (handler/event-loop)
   (start-server (or port PORT)))
