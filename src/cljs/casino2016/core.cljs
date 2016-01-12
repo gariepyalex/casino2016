@@ -1,55 +1,57 @@
 (ns casino2016.core
-  (:require [quil.core :as q :include-macros true]
-            [quil.middleware :as m]))
+  (:require [secretary.core :as secretary :refer-macros [defroute]]
+            [reagent.core :as reagent]
+            [reagent.session :as session]
+            [secretary.core :as secretary :include-macros true]
+            [goog.events :as events]
+            [goog.history.EventType :as HistoryEventType]
+            [casino2016.home :as home]
+            [casino2016.admin :as admin]
+            [casino2016.game :as game]
+            [casino2016.player :as player])
+  (:import goog.History))
 
 (enable-console-print!)
 
-(defn setup []
-  (q/frame-rate 30)
-  (let [r 10
-        w (q/width)
-        h (q/height)
-        y-vals (take-nth r (range (+ h r)))
-        x-vals (flatten
-                 (map #(repeat (count y-vals) %)
-                      (take-nth r (range (+ w r)))))
-        origins (partition 2 (interleave x-vals (cycle y-vals)))
-        circles (map (fn [[x y]] {:x x :y y :r r}) origins)]
-    {:radius r
-     :circles circles}))
+(def app-dom-mount (js/document.getElementById "app"))
 
-(defn update-state [state]
-  (update state :circles #(map (fn [c]
-                                 (let [cx (/ (q/width) 2)
-                                       cy (/ (q/height) 2)
-                                       x (:x c)
-                                       y (:y c)
-                                       r (:radius state)
-                                       t (/ (q/millis) 1000)]
-                                   (assoc c :r (* r
-                                                  (q/sin
-                                                    (+ t
-                                                       (+ (q/sq (- cx x))
-                                                          (q/sq (- cy y))))))))) %)))
-
-(defn draw-state [state]
-  (q/background 0 0 0)
-  (q/no-stroke)
-
-  (doseq [c (:circles state)]
-    (q/ellipse (:x c) (:y c) (:r c) (:r c))))
-
-
-(q/defsketch geometric-twinkle
-  :host "quil-canvas"
-  :size [500 500]
-  :setup setup
-  :update update-state
-  :draw draw-state
-  :middleware [m/fun-mode])
-
-(defn ^:export main
+(defn current-page
   []
-  (println "hello"))
+  [:div [(session/get :current-page)]])
 
-(+ 1 2 3)
+(secretary/defroute "/"
+  []
+  (session/put! :current-page home/page))
+
+(secretary/defroute "/admin"
+  []
+  (session/put! :current-page admin/page))
+
+(secretary/defroute "/game"
+  []
+  (session/put! :current-page game/page))
+
+(secretary/defroute "/player"
+  []
+  (session/put! :current-page player/page))
+
+(defn hook-browser-navigation!
+  []
+  (doto (History.)
+    (events/listen
+     HistoryEventType/NAVIGATE
+     (fn [event]
+       (secretary/dispatch! (.-token event))))
+    (.setEnabled true)))
+
+(defn mount-root
+  []
+  (reagent/render [current-page] app-dom-mount))
+
+(defn init!
+  []
+  (secretary/set-config! :prefix "#")
+  (hook-browser-navigation!)
+  (mount-root))
+
+(init!)

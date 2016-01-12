@@ -7,7 +7,8 @@
 
 (defn start-server
   [port]
-  (reset! server (httpkit/run-server handler/app {:port port})))
+  (reset! server (httpkit/run-server handler/app {:port port}))
+  (println "server started on port " port))
 
 (defn stop-server
   []

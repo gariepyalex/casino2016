@@ -5,6 +5,8 @@
                  [ring/ring-defaults "0.1.5"]
                  [compojure "1.4.0"]
                  [reagent "0.5.1"]
+                 [reagent-utils "0.1.7"]
+                 [secretary "1.2.3"]
                  [http-kit "2.1.18"]
                  [quil "2.3.0"]
                  [hiccup "1.0.5"]]
