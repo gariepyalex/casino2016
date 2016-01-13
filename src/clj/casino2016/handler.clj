@@ -41,8 +41,15 @@
 
 (def app (wrap-defaults handler site-defaults))
 
+(defmulti event-handler
+  (fn [event] (:id event)))
+
+(defmethod event-handler :casino2016.player/sign-up
+  [{name :?data}]
+  (println "His name is " name))
+
 (defn event-loop
   []
   (go-loop [event (<! ch-chsk)]
-    (println (:id event) (:?data event))
+    (event-handler event)
     (recur (<! ch-chsk))))
