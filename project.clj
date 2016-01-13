@@ -25,8 +25,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :cljsbuild {:builds [{:id "dev"
-                        :figwheel {:websocket-host "192.168.0.195"
-                                   :on-jsload "casino2016.core/on-js-reload"}
+                        :figwheel {:on-jsload "casino2016.core/on-js-reload"}
                         :source-paths ["src/cljs"]
                         :compiler {:main casino2016.core
                                    :asset-path "js/compiled/out"
