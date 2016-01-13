@@ -44,6 +44,10 @@
 (defmulti event-handler
   (fn [event] (:id event)))
 
+(defmethod event-handler :default
+  [_]
+  nil)
+
 (defmethod event-handler :casino2016.player/sign-up
   [{name :?data}]
   (println "His name is " name))
