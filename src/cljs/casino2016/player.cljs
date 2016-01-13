@@ -13,7 +13,7 @@
       [:div.sign-up-form
        [:input.sign-up-name {:placeholder "Your name"
                              :on-change #(reset! name (-> % .-target .-value))}]
-       [:div.sign-up-button {:on-click #(sign-up-game! chsk-send! @name)}
+       [:button.sign-up-button {:on-click #(sign-up-game! chsk-send! @name)}
         "Enter game"]])))
 
 (defn playing-arrows
