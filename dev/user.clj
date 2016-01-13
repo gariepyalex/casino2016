@@ -5,7 +5,7 @@
 
 (def figwheel-config
   (let [builds (r/get-project-cljs-builds)]
-    {:figwheel-options {:css-dirs ["resources/css"]
+    {:figwheel-options {:css-dirs ["resources/public/css"]
                         :server-port 3449
                         :ring-handler casino2016.handler/app}
      :build-ids ["dev"]

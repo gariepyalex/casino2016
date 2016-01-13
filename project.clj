@@ -25,7 +25,8 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :cljsbuild {:builds [{:id "dev"
-                        :figwheel {:on-jsload "casino2016.core/on-js-reload"}
+                        :figwheel {:websocket-host "192.168.0.195"
+                                   :on-jsload "casino2016.core/on-js-reload"}
                         :source-paths ["src/cljs"]
                         :compiler {:main casino2016.core
                                    :asset-path "js/compiled/out"
@@ -40,7 +41,7 @@
                                    :optimizations :advanced
                                    :pretty-print false}}]}
 
-  :figwheel {:css-dirs ["resources/css"]
+  :figwheel {:css-dirs ["resources/public/css"]
              :ring-handler casino2016.handler/app}
 
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
