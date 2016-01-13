@@ -11,3 +11,10 @@
 
 (defn choose [choice player]
   (assoc player :choice choice))
+
+(defn new-game
+  []
+  (assoc {} :players []))
+
+(defn add-player [player game]
+  (update game :players conj player))
