@@ -1,0 +1,27 @@
+h1 {
+    color: red;
+}
+
+.player-arrow-container {
+    width: 85%;
+    margin: 0 auto;
+}
+
+.player-arrow {
+    width: 40%;
+    height: 70vh;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.player-arrow-left {
+    float: left;
+    background-image: url("/img/left-arrow.png");
+}
+
+.player-arrow-right {
+    float: right;
+    background-image: url("/img/right-arrow.png");
+}

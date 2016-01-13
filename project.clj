@@ -20,28 +20,35 @@
 
   :main casino2016.core
 
-  :plugins [[lein-cljsbuild "1.1.1"]]
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0-3"]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
-                             :compiler {:main casino2016.core
-                                        :output-to "resources/public/js/compiled/app.js"
-                                        :output-dir "resources/public/js/compiled/out/"
-                                        :source-map "resources/public/js/compiled/out.js.map"
-                                        :asset-path "js/compiled/out"
-                                        :warning true
-                                        :optimizations :none
-                                        :source-map-timestamp true
-                                        :pretty-print true}}}}
+  :cljsbuild {:builds [{:id "dev"
+                        :figwheel {:websocket-host "10.248.215.153"
+                                   :on-jsload "casino2016.core/on-js-reload"}
+                        :source-paths ["src/cljs"]
+                        :compiler {:main casino2016.core
+                                   :asset-path "js/compiled/out"
+                                   :output-to "resources/public/js/compiled/app.js"
+                                   :output-dir "resources/public/js/compiled/out/"
+                                   :optimizations :none
+                                   :source-map-timestamp true}}
+                       {:id "min"
+                        :source-paths ["src/cljs"]
+                        :compiler {:output-to "resources/public/js/compiled/app.js"
+                                   :main casino2016.core
+                                   :optimizations :advanced
+                                   :pretty-print false}}]}
 
-  :profiles {:dev {:dependencies [[figwheel "0.5.0-1"]
-                                  [com.cemerick/piggieback "0.2.1"]
-                                  [figwheel-sidecar "0.5.0-1"]]
+  :figwheel {:css-dirs ["resources/public/css"]
+             :ring-handler casino2016.handler/app}
 
-                   :source-paths ["dev"]
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
+                                  [figwheel-sidecar "0.5.0-3"]]
 
-                   :plugins [[lein-figwheel "0.5.0-1"]]
+                   :source-paths ["dev" "src/cljs"]
 
                    :repl-options {:init-ns user
                                   :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}})

@@ -17,7 +17,8 @@
                 [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]]
                [:body
                 [:div#app]
-                (hiccup/include-js "js/compiled/app.js")]]))
+                (hiccup/include-js "js/compiled/app.js")
+                (hiccup/include-css "css/style.css")]]))
 
 (let [{:keys [ch-recv
               send-fn
