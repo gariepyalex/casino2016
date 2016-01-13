@@ -1,8 +1,12 @@
+body {
+    font-size: 1.5em;
+}
+
 h1 {
     color: red;
 }
 
-.player-arrow-container {
+.player-container {
     width: 85%;
     margin: 0 auto;
 }
@@ -24,4 +28,20 @@ h1 {
 .player-arrow-right {
     float: right;
     background-image: url("/img/right-arrow.png");
+}
+
+.sign-up-form {
+    margin-top: 30vh;
+}
+
+.sign-up-form > * {
+    display: block;
+    margin: 0 auto 20px;
+    width: 100%;
+}
+
+.sign-up-button {
+    text-align: center;
+    border: black solid 2px;
+    background-color: #03A9F4;
 }

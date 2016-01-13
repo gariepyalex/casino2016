@@ -1,6 +1,6 @@
 (ns casino2016.core
   (:require-macros [cljs.core.async.macros :as asyncm :refer (go go-loop)])
-  (:require [cljs.core.async :as async :refer [timeout <!]]
+  (:require [cljs.core.async :as async :refer [timeout <! chan]]
             [secretary.core :as secretary :refer-macros [defroute]]
             [reagent.core :as reagent]
             [reagent.session :as session]
@@ -14,6 +14,7 @@
             [casino2016.player :as player])
   (:import goog.History))
 
+
 (enable-console-print!)
 
 (defonce sente-socket (sente/make-channel-socket! "/chsk" {:type :auto}))
@@ -21,7 +22,6 @@
 (defonce ch-chsk    (:ch-recv sente-socket)) ; ChannelSocket's receive channel
 (defonce chsk-send! (:send-fn sente-socket)) ; ChannelSocket's send API fn
 (defonce chsk-state (:state sente-socket))   ; Watchable, read-only atom
-
 (def app-dom-mount (js/document.getElementById "app"))
 
 (defn current-page
@@ -42,7 +42,7 @@
 
 (secretary/defroute "/player"
   []
-  (session/put! :current-page player/page))
+  (session/put! :current-page (player/page chsk-send!)))
 
 (defn hook-browser-navigation!
   []

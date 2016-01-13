@@ -44,6 +44,5 @@
 (defn event-loop
   []
   (go-loop [event (<! ch-chsk)]
-    (println (:id event))
-    (println (:?data event))
+    (println (:id event) (:?data event))
     (recur (<! ch-chsk))))
