@@ -4,6 +4,6 @@
   []
   [:div
    [:h1 "Casino IFT-GLO 2016"]
-   [:p [:a {:href "/#/admin"} "admin"]]
-   [:p [:a {:href "/#/game"} "game"]]
-   [:p [:a {:href "/#/player"} "player"]]])
+   [:p [:a {:href "/#/admin"} "Admin"]]
+   [:p [:a {:href "/#/game"} "Game"]]
+   [:p [:a {:href "/#/player"} "Player"]]])

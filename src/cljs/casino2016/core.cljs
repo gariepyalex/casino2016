@@ -16,14 +16,11 @@
 
 (enable-console-print!)
 
-(let [{:keys [chsk ch-recv send-fn state]}
-      (sente/make-channel-socket! "/chsk" ; Note the same path as before
-                                  {:type :auto})]
-  (def chsk       chsk)
-  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
-  (def chsk-send! send-fn) ; ChannelSocket's send API fn
-  (def chsk-state state)   ; Watchable, read-only atom
-  )
+(defonce sente-socket (sente/make-channel-socket! "/chsk" {:type :auto}))
+(defonce chsk       (:chsk sente-socket))
+(defonce ch-chsk    (:ch-recv sente-socket)) ; ChannelSocket's receive channel
+(defonce chsk-send! (:send-fn sente-socket)) ; ChannelSocket's send API fn
+(defonce chsk-state (:state sente-socket))   ; Watchable, read-only atom
 
 (def app-dom-mount (js/document.getElementById "app"))
 
@@ -66,6 +63,11 @@
   (hook-browser-navigation!)
   (mount-root))
 
+(defn on-js-reload
+  []
+  (println "toto")
+  (mount-root))
+
 (defn ping-each-second
   "Send an event to server each second. For testing purposes."
   []
@@ -75,5 +77,3 @@
     (recur (inc second))))
 
 (init!)
-(ping-each-second)
-(println "page has loaded")

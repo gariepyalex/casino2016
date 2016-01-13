@@ -6,10 +6,9 @@
 (def figwheel-config
   (let [builds (r/get-project-cljs-builds)]
     {:figwheel-options {:css-dirs ["resources/css"]
-                        :server-port 3448
-                        :reload-clj-files true
+                        :server-port 3449
                         :ring-handler casino2016.handler/app}
-     :build-ids (into [] (map :id builds))
+     :build-ids ["dev"]
      :all-builds builds}))
 
 (defn start
@@ -23,4 +22,4 @@
 
 (defn cljs
   []
-  (ra/cljs-repl "dev"))
+  (ra/cljs-repl))
