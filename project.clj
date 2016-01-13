@@ -31,15 +31,14 @@
                                    :asset-path "js/compiled/out"
                                    :output-to "resources/public/js/compiled/app.js"
                                    :output-dir "resources/public/js/compiled/out/"
-                                   :recompile-dependents false
                                    :optimizations :none
                                    :source-map-timestamp true}}
-                        {:id "min"
-                         :source-paths ["src/cljs"]
-                         :compiler {:output-to "resources/public/js/compiled/app.js"
-                                    :main casino2016.core
-                                    :optimizations :advanced
-                                    :pretty-print false}}]}
+                       {:id "min"
+                        :source-paths ["src/cljs"]
+                        :compiler {:output-to "resources/public/js/compiled/app.js"
+                                   :main casino2016.core
+                                   :optimizations :advanced
+                                   :pretty-print false}}]}
 
   :figwheel {:css-dirs ["resources/css"]
              :ring-handler casino2016.handler/app}
