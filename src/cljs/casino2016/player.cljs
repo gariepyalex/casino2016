@@ -5,5 +5,5 @@
   [:div
    [:h2 "Choose a direction"]
    [:div.player-arrow-container
-    [:div.player-arrow.player-arrow-left]
-    [:div.player-arrow.player-arrow-right]]])
+    [:div.player-arrow.player-arrow-left {:on-click #(js/alert "left")}]
+    [:div.player-arrow.player-arrow-right {:on-click #(js/alert "right")}]]])
