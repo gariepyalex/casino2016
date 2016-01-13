@@ -3,7 +3,7 @@
             [figwheel-sidecar.repl-api :as ra]
              casino2016.handler))
 
-(def figwheel-config
+(def default-config
   (let [builds (r/get-project-cljs-builds)]
     {:figwheel-options {:css-dirs ["resources/public/css"]
                         :server-port 3449
@@ -11,10 +11,24 @@
      :build-ids ["dev"]
      :all-builds builds}))
 
+(defn config-with-websocket
+  [ip-address]
+  (->> default-config
+       :all-builds
+       (map #(assoc % :websocket-host ip-address))
+       (into [])
+       (assoc default-config :all-builds)))
+
 (defn start
-  []
-  (casino2016.handler/event-loop)
-  (ra/start-figwheel! figwheel-config))
+  ([config]
+   (casino2016.handler/event-loop)
+   (ra/start-figwheel! config))
+  ([]
+   (start default-config)))
+
+(defn start-with-websocket
+  [ip-address]
+  (start (config-with-websocket ip-address)))
 
 (defn stop
   []
