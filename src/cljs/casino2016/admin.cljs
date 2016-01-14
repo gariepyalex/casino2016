@@ -4,17 +4,23 @@
 (defn player-view
   []
   (let [state (session/get :game-state)]
-    [:div
-     [:h3 (str "Players ("
-               (:number-of-players state)
-               "/"
-               (:max-number-of-players state)
-               ")")]
-     [:ul (for [{:keys [name status id]} (:players state)]
-            (into [:li.admin-player-entry]
-                  (if (= status :pending)
-                    [[:p.admin-accepted-player name] [:button "accept"]]
-                    [[:p.admin-pending-player name] [:button "kick"]])))]]))
+    [:div.admin-player-container
+     [:div
+      [:h3 (str "Players ("
+                (:number-of-players state)
+                "/"
+                (:max-number-of-players state)
+                ")")]
+      [:ul (for [{name :name} (:players state)]
+             (into [:li.admin-player-entry]
+                   [[:p.admin-accepted-player name]
+                    [:button "kick"]]))]]
+     [:div
+      [:h3 "Pending"]
+      [:ul (for [{name :name} (:pending-players state)]
+             (into [:li.admin-player-entry]
+                   [[:p.admin-pending-player name]
+                    [:button "accept"]]))]]]))
 
 (defn page
   [chsk-send!]

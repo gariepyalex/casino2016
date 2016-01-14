@@ -52,12 +52,25 @@ h1 {
     margin-right: 10px;
 }
 
+.admin-player-container {
+    display: flex;
+    align-items: flex-start;
+}
+
+.admin-player-container > div {
+    margin-right: 60px;
+}
+
+.admin-player-list {
+    float: none;
+}
+
 .admin-accepted-player {
-    color: red;
+    color: green;
 }
 
 .admin-pending-player {
-    color: green;
+    color: red;
 }
 
 #game-canvas {

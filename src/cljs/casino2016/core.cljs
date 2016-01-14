@@ -16,29 +16,23 @@
 
 (enable-console-print!)
 
-(def test-data {:players [{:id 1
-                           :name "good"
+(def test-data {:players [{:name "good"
                            :status :pending}
-                          {:id 2
-                           :name "bad"
+                          {:name "bad"
                            :status :accepted}
-                          {:id 3
-                           :name "ugly"
+                          {:name "ugly"
                            :status :pending}
-                          {:id 4
-                           :name "blondie"
-                           :status :pending}
-                          {:id 5
-                           :name "dude"
-                           :status :pending}
-                          {:id 6
-                           :name "demarco"
-                           :status :accepted}
-                          {:id 7
-                           :name "bart"
-                           :status :accepted}]
+                          {:name "blondie"
+                           :status :pending}]
 
-                :number-of-players 3
+                :pending-players [{:name "dude"
+                                   :status :pending}
+                                  {:name "demarco"
+                                   :status :accepted}
+                                  {:name "bart"
+                                   :status :accepted}]
+
+                :number-of-players 4
 
                 :max-number-of-players 8})
 
