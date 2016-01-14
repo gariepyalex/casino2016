@@ -87,6 +87,7 @@
 
 (defn on-js-reload
   []
+  (reagent/render [:p "reloading"] app-dom-mount)
   (mount-root))
 
 (init!)

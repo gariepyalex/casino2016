@@ -5,6 +5,7 @@
 
 (def canvas-width 640)
 (def canvas-height 400)
+(def run-animation? (atom nil))
 
 (defn pulse [low high rate]
   (let [diff (- high low)
@@ -109,6 +110,7 @@
                   (rand-between 50 150)]))
 
 (defn setup []
+  (reset! run-animation? true)
   (q/rect-mode :center)
   (q/frame-rate 30)
   {:ship (create-ship)
@@ -175,6 +177,7 @@
     (:s :down) (update-in state [:ship :speed] slower)
     (:a :left) (assoc-in state [:ship :dir-change] -0.15)
     (:d :right) (assoc-in state [:ship :dir-change] 0.15)
+    (:q toto) (q/exit)
     state))
 
 (defn on-key-up [state]
@@ -203,6 +206,7 @@
       (q/pop-matrix))))
 
 (defn draw-state [state]
+  (when-not @run-animation? (q/exit))
   (q/background (pulse 20 40  15.0)
                 (pulse 40 60 40.0)
                 (pulse 50 70 5.0))
@@ -212,15 +216,12 @@
                                         (- (/ (q/height) 2))])]
     (doseq [star (:stars state)]
       (draw-entity star cam-pos))
-    (doseq [planet (:planets state)]
-      (draw-entity planet cam-pos))
     (doseq [smoke (:smoke state)]
       (draw-entity smoke cam-pos))
     (draw-entity (:ship state) cam-pos)))
 
 (q/defsketch nanoscopic
   :host "game-canvas"
-  :not-start true
   :size [canvas-width canvas-height]
   :setup setup
   :update update-state
@@ -237,4 +238,5 @@
   []
   (reagent/create-class
    {:reagent-render game-container
-    :component-did-mount nanoscopic}))
+    :component-did-mount nanoscopic
+    :component-will-unmount #(reset! run-animation? false)}))
