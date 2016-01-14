@@ -1,7 +1,7 @@
 (ns casino2016.game)
 
-(defn player [name]
-  {:tickets 0 :name name :choice :nochoice})
+(defn player [id name]
+  {:id id :name name :tickets 0 :choice :nochoice})
 
 (defn give-n-tickets [n player]
   (update player :tickets + n))
