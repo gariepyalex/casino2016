@@ -1,44 +1,20 @@
-(ns casino2016.admin)
-
-(def test-data (atom {:players [{:id 1
-                                 :name "good"
-                                 :status :pending}
-                                {:id 2
-                                 :name "bad"
-                                 :status :accepted}
-                                {:id 3
-                                 :name "ugly"
-                                 :status :pending}
-                                {:id 4
-                                 :name "blondie"
-                                 :status :pending}
-                                {:id 5
-                                 :name "dude"
-                                 :status :pending}
-                                {:id 6
-                                 :name "demarco"
-                                 :status :accepted}
-                                {:id 7
-                                 :name "bart"
-                                 :status :accepted}]
-
-                      :number-of-players 3
-
-                      :max-number-of-players 8}))
+(ns casino2016.admin
+  (:require [reagent.session :as session]))
 
 (defn player-view
   []
-  [:div
-   [:h3 (str "Players ("
-             (:number-of-players @test-data)
-             "/"
-             (:max-number-of-players @test-data)
-             ")")]
-   [:ul (for [{:keys [name status id]} (:players @test-data)]
-          (into [:li.admin-player-entry]
-                (if (= status :pending)
-                  [[:p.admin-accepted-player name] [:button "accept"]]
-                  [[:p.admin-pending-player name] [:button "kick"]])))]])
+  (let [state (:game-state session)]
+    [:div
+     [:h3 (str "Players ("
+               (:number-of-players state)
+               "/"
+               (:max-number-of-players state)
+               ")")]
+     [:ul (for [{:keys [name status id]} (:players state)]
+            (into [:li.admin-player-entry]
+                  (if (= status :pending)
+                    [[:p.admin-accepted-player name] [:button "accept"]]
+                    [[:p.admin-pending-player name] [:button "kick"]])))]]))
 
 (defn page
   [chsk-send!]

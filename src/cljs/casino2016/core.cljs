@@ -14,8 +14,36 @@
             [casino2016.player :as player])
   (:import goog.History))
 
-
 (enable-console-print!)
+
+(def test-data {:players [{:id 1
+                           :name "good"
+                           :status :pending}
+                          {:id 2
+                           :name "bad"
+                           :status :accepted}
+                          {:id 3
+                           :name "ugly"
+                           :status :pending}
+                          {:id 4
+                           :name "blondie"
+                           :status :pending}
+                          {:id 5
+                           :name "dude"
+                           :status :pending}
+                          {:id 6
+                           :name "demarco"
+                           :status :accepted}
+                          {:id 7
+                           :name "bart"
+                           :status :accepted}]
+
+                :number-of-players 3
+
+                :max-number-of-players 8})
+
+(session/put! :game-state test-data)
+
 
 (defonce sente-socket (sente/make-channel-socket! "/chsk" {:type :auto}))
 (defonce chsk       (:chsk sente-socket))
