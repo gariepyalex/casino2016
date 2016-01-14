@@ -34,7 +34,7 @@
 
 (secretary/defroute "/admin"
   []
-  (session/put! :current-page admin/page))
+  (session/put! :current-page (admin/page chsk-send!)))
 
 (secretary/defroute "/game"
   []
@@ -65,15 +65,6 @@
 
 (defn on-js-reload
   []
-  (println "toto")
   (mount-root))
-
-(defn ping-each-second
-  "Send an event to server each second. For testing purposes."
-  []
-  (go-loop [second 1]
-    (<! (timeout 1000))
-    (chsk-send! [:core/ping {:elapsed second}])
-    (recur (inc second))))
 
 (init!)

@@ -1,9 +1,9 @@
-button, input, body {
+body {
     font-size: 1.3em;
 }
 
 h1 {
-    color: red;
+    color: blue;
 }
 
 .player-container {
@@ -41,7 +41,21 @@ h1 {
 }
 
 .sign-up-button {
+    font-size: 1.3em;
     text-align: center;
     border: black solid 3px;
     background-color: #03A9F4;
+}
+
+.admin-player-entry > * {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.admin-accepted-player {
+    color: red;
+}
+
+.admin-pending-player {
+    color: green;
 }
