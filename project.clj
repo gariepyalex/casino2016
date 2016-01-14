@@ -15,6 +15,7 @@
 
   :min-lein-version "2.5.3"
   :source-paths ["src/clj"]
+  :test-paths ["test/clj"]
   :resource-paths ["resources"]
 
   :main casino2016.core
