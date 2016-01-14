@@ -3,7 +3,7 @@
 
 (defn player-view
   []
-  (let [state (:game-state session)]
+  (let [state (session/get :game-state)]
     [:div
      [:h3 (str "Players ("
                (:number-of-players state)
