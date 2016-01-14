@@ -59,3 +59,8 @@ h1 {
 .admin-pending-player {
     color: green;
 }
+
+#game-canvas {
+    display: block;
+    margin: 0 auto;
+}
