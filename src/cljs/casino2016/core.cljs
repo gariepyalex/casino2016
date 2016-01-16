@@ -1,6 +1,6 @@
 (ns casino2016.core
   (:require-macros [cljs.core.async.macros :as asyncm :refer (go go-loop)])
-  (:require [cljs.core.async :as async :refer [timeout <!]]
+  (:require [cljs.core.async :as async :refer [timeout <! chan]]
             [secretary.core :as secretary :refer-macros [defroute]]
             [reagent.core :as reagent]
             [reagent.session :as session]
@@ -16,12 +16,34 @@
 
 (enable-console-print!)
 
+(def test-data {:players [{:name "good"
+                           :status :pending}
+                          {:name "bad"
+                           :status :accepted}
+                          {:name "ugly"
+                           :status :pending}
+                          {:name "blondie"
+                           :status :pending}]
+
+                :pending-players [{:name "dude"
+                                   :status :pending}
+                                  {:name "demarco"
+                                   :status :accepted}
+                                  {:name "bart"
+                                   :status :accepted}]
+
+                :number-of-players 4
+
+                :max-number-of-players 8})
+
+(session/put! :game-state test-data)
+
+
 (defonce sente-socket (sente/make-channel-socket! "/chsk" {:type :auto}))
 (defonce chsk       (:chsk sente-socket))
 (defonce ch-chsk    (:ch-recv sente-socket)) ; ChannelSocket's receive channel
 (defonce chsk-send! (:send-fn sente-socket)) ; ChannelSocket's send API fn
 (defonce chsk-state (:state sente-socket))   ; Watchable, read-only atom
-
 (def app-dom-mount (js/document.getElementById "app"))
 
 (defn current-page
@@ -34,7 +56,7 @@
 
 (secretary/defroute "/admin"
   []
-  (session/put! :current-page admin/page))
+  (session/put! :current-page (admin/page chsk-send!)))
 
 (secretary/defroute "/game"
   []
@@ -42,7 +64,7 @@
 
 (secretary/defroute "/player"
   []
-  (session/put! :current-page player/page))
+  (session/put! :current-page (player/page chsk-send!)))
 
 (defn hook-browser-navigation!
   []
@@ -65,15 +87,7 @@
 
 (defn on-js-reload
   []
-  (println "toto")
+  (reagent/render [:p "reloading"] app-dom-mount)
   (mount-root))
-
-(defn ping-each-second
-  "Send an event to server each second. For testing purposes."
-  []
-  (go-loop [second 1]
-    (<! (timeout 1000))
-    (chsk-send! [:core/ping {:elapsed second}])
-    (recur (inc second))))
 
 (init!)

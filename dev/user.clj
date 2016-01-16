@@ -1,5 +1,6 @@
 (ns user
-  (:require [figwheel-sidecar.repl :as r]
+  (:require [clojure.core.async :refer [close!]]
+            [figwheel-sidecar.repl :as r]
             [figwheel-sidecar.repl-api :as ra]
              casino2016.handler))
 
@@ -11,6 +12,8 @@
      :build-ids ["dev"]
      :all-builds builds}))
 
+(def event-loop (atom nil))
+
 (defn config-with-websocket
   [ip-address]
   (->> default-config
@@ -21,7 +24,7 @@
 
 (defn start
   ([config]
-   (casino2016.handler/event-loop)
+   (reset! event-loop (casino2016.handler/event-loop))
    (ra/start-figwheel! config))
   ([]
    (start default-config)))
@@ -32,6 +35,8 @@
 
 (defn stop
   []
+  (close! @event-loop)
+  (reset! event-loop nil)
   (ra/stop-figwheel!))
 
 (defn cljs

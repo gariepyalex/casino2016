@@ -8,7 +8,6 @@
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]))
 
-
 (def web-app (hiccup/html5
               [:html
                [:head
@@ -20,6 +19,8 @@
                 (hiccup/include-js "js/compiled/app.js")
                 (hiccup/include-css "css/style.css")]]))
 
+;;======================================================
+;; Ring/Compojure route
 (let [{:keys [ch-recv
               send-fn
               ajax-post-fn
@@ -41,9 +42,23 @@
 
 (def app (wrap-defaults handler site-defaults))
 
+;;======================================================
+;; Game loop
+(defonce game-state (atom nil))
+
+(defmulti event-handler
+  (fn [event] (:id event)))
+
+(defmethod event-handler :default
+  [_]
+  nil)
+
+(defmethod event-handler :casino2016.player/sign-up
+  [{name :?data}]
+  (println "His name is " name))
+
 (defn event-loop
   []
   (go-loop [event (<! ch-chsk)]
-    (println (:id event))
-    (println (:?data event))
+    (event-handler event)
     (recur (<! ch-chsk))))
