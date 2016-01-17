@@ -6,7 +6,8 @@
             [ring.util.response :as response]
             [hiccup.page :as hiccup]
             [taoensso.sente :as sente]
-            [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]))
+            [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
+            [casino2016.admin :as admin]))
 
 (def web-app (hiccup/html5
               [:html
@@ -21,17 +22,21 @@
 
 ;;======================================================
 ;; Ring/Compojure route
+(defn cookie-as-user-id
+  [request]
+  (:session/key request))
+
 (let [{:keys [ch-recv
               send-fn
               ajax-post-fn
               ajax-get-or-ws-handshake-fn
               connected-uids]}
-      (sente/make-channel-socket! sente-web-server-adapter {})]
-  (defonce ring-ajax-post                ajax-post-fn)
-  (defonce ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
-  (defonce ch-chsk                       ch-recv)
-  (defonce chsk-send!                    send-fn)
-  (defonce connected-uids                connected-uids))
+      (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn cookie-as-user-id})]
+  (def ring-ajax-post                ajax-post-fn)
+  (def ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
+  (def ch-chsk                       ch-recv)
+  (def chsk-send!                    send-fn)
+  (def connected-uids                connected-uids))
 
 (defroutes handler
   (GET "/" [] web-app)
@@ -49,16 +54,17 @@
 (defmulti event-handler
   (fn [event] (:id event)))
 
+(defmethod event-handler :casino2016.player/sign-up
+  [{user-id :uid username :?data}]
+  (admin/sign-up user-id username))
+
 (defmethod event-handler :default
   [_]
   nil)
-
-(defmethod event-handler :casino2016.player/sign-up
-  [{name :?data}]
-  (println "His name is " name))
 
 (defn event-loop
   []
   (go-loop [event (<! ch-chsk)]
     (event-handler event)
+    (println @admin/state)
     (recur (<! ch-chsk))))
