@@ -17,9 +17,7 @@
   (let [max-player (:max-player game)]
     (if (= max-player (count (:players game)))
       game
-      (if (= 1 (count
-                (filter #(= (:name %) (:name player))
-                        (:players game))))
+      (if (some #{(:name player)} (map :name (:players game)))
         game
         (update game :players conj player)))))
 

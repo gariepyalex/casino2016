@@ -45,7 +45,7 @@
     (is (empty? (:players a-new-game)))))
 
 (deftest add-player-test
-  (let [max-player 8 
+  (let [max-player 8
         a-new-game (new-game max-player)
         full-game (-> (new-game 8)
                        (add-player (player "first"))
@@ -117,8 +117,7 @@
   (let [a-cleaned-game (-> a-game
                            (play-turn-game :right)
                            (kick-losers))
-        losers (filter #(= :right (:choice %)) (:players (play-turn-game a-game :riht)))
-        ]
+        losers (filter #(= :right (:choice %)) (:players (play-turn-game a-game :riht)))]
   (testing "Given losers when kick losers then they are not in the game anymore"
     (is (empty?
          (filter :lost
