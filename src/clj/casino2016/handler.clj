@@ -58,19 +58,32 @@
   [{user-id :uid username :?data}]
   (admin/sign-up user-id username))
 
-(defmethod event-handler :default
+(defmethod event-handler :casino2016.admin/reset
   [_]
+  (admin/reset))
+
+(defmethod event-handler :casino2016.admin/accept-player
+  [{player-name :?data}]
+  (admin/admin-accept-player player-name))
+
+(defmethod event-handler :casino2016.admin/kick-player
+  [{player-name :?data}]
+  (admin/admin-kick-player player-name))
+
+(defmethod event-handler :default
+  [event]
   nil)
 
-(defn broadcast-state
+(defn broadcast-state!
   []
-  (println "state changed"))
+  (doseq [client (:any @connected-uids)]
+    (go (chsk-send! client [:game/state @admin/state]))))
 
 (defn event-loop
   []
-  (broadcast-state)
+  (broadcast-state!)
   (go-loop [event (<! ch-chsk)]
     (event-handler event)
-    (broadcast-state)
+    (broadcast-state!)
     (recur (<! ch-chsk))))
 

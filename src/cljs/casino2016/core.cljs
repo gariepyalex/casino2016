@@ -16,30 +16,9 @@
 
 (enable-console-print!)
 
-(def test-data {:players [{:name "good"
-                           :status :pending}
-                          {:name "bad"
-                           :status :accepted}
-                          {:name "ugly"
-                           :status :pending}
-                          {:name "blondie"
-                           :status :pending}]
-
-                :pending-players [{:name "dude"
-                                   :status :pending}
-                                  {:name "demarco"
-                                   :status :accepted}
-                                  {:name "bart"
-                                   :status :accepted}]
-
-                :number-of-players 4
-
-                :max-number-of-players 8})
-
-(session/put! :game-state test-data)
 
 
-(defonce sente-socket (sente/make-channel-socket! "/chsk" {:type :auto}))
+(defonce sente-socket (sente/make-channel-socket! "/chsk" {:type :auto :wrap-recv-evs? false}))
 (defonce chsk       (:chsk sente-socket))
 (defonce ch-chsk    (:ch-recv sente-socket)) ; ChannelSocket's receive channel
 (defonce chsk-send! (:send-fn sente-socket)) ; ChannelSocket's send API fn
@@ -79,10 +58,27 @@
   []
   (reagent/render [current-page] app-dom-mount))
 
+(defmulti event-handler
+  (fn [event] (:id event)))
+
+(defmethod event-handler :game/state
+  [{state :?data}]
+  (println state)
+  (session/put! :game-state state))
+
+(defmethod event-handler :default
+  [_]
+  nil)
+
+(defonce state-listener (go-loop [event (<! ch-chsk)]
+                          (event-handler event)
+                          (recur (<! ch-chsk))))
+
 (defn init!
   []
   (secretary/set-config! :prefix "#")
   (hook-browser-navigation!)
+  (session/put! :game-state {})
   (mount-root))
 
 (defn on-js-reload
