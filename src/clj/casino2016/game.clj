@@ -50,10 +50,7 @@
                                (into {})))))
 
 (defn kick-player [game player-name]
-  (update game :players (fn [players]
-                          (->> players
-                               (filter (fn [[k v]] (not= player-name (:name v))))
-                               (into {})))))
+  (update game :players dissoc player-name))
 
 
 (defn player-choose [game player-name choice]
