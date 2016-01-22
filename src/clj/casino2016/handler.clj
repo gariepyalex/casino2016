@@ -62,9 +62,15 @@
   [_]
   nil)
 
+(defn broadcast-state
+  []
+  (println "state changed"))
+
 (defn event-loop
   []
+  (broadcast-state)
   (go-loop [event (<! ch-chsk)]
     (event-handler event)
-    (println @admin/state)
+    (broadcast-state)
     (recur (<! ch-chsk))))
+

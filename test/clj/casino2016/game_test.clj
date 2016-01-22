@@ -48,14 +48,14 @@
   (let [max-player 8
         a-new-game (new-game max-player)
         full-game (-> (new-game 8)
-                       (add-player (player "first"))
-                       (add-player (player "second"))
-                       (add-player (player "third"))
-                       (add-player (player "fourth"))
-                       (add-player (player "fifth"))
-                       (add-player (player "sixth"))
-                       (add-player (player "seventh"))
-                       (add-player (player "eigth")))]
+                      (add-player (player "first"))
+                      (add-player (player "second"))
+                      (add-player (player "third"))
+                      (add-player (player "fourth"))
+                      (add-player (player "fifth"))
+                      (add-player (player "sixth"))
+                      (add-player (player "seventh"))
+                      (add-player (player "eigth")))]
     (testing "Given a new game with max player then max player is set"
       (is (= max-player (:max-player a-new-game))))
     (testing "Given a new game when adding a player then a player is present in the game"
@@ -73,24 +73,24 @@
                                       (add-player a-player)
                                       (add-player a-player))))))))))
 (deftest play-turn-player-test
-    (let [n-tickets 2
-          right-choice :right
-          wrong-choice :left
-          ticket-prize 4
-          a-winner (-> (player "a-player")
-                      (give-n-tickets n-tickets)
-                      (choose right-choice)
-                      (play-turn-player right-choice ticket-prize))
-          a-loser (-> (player "a-player")
-                       (give-n-tickets n-tickets)
-                       (choose wrong-choice)
-                       (play-turn-player right-choice ticket-prize))]
-      (testing "Given a winner when play turn then ticket prize is given to winner"
-        (is (= (+ n-tickets ticket-prize) (:tickets a-winner))))
-      (testing "Given a loser when play turn the loser has still n-tickets"
-        (is (= n-tickets (:tickets a-loser))))
-      (testing "Given a loser when play turn then loser has lost"
-        (is (:lost a-loser)))))
+  (let [n-tickets 2
+        right-choice :right
+        wrong-choice :left
+        ticket-prize 4
+        a-winner (-> (player "a-player")
+                     (give-n-tickets n-tickets)
+                     (choose right-choice)
+                     (play-turn-player right-choice ticket-prize))
+        a-loser (-> (player "a-player")
+                    (give-n-tickets n-tickets)
+                    (choose wrong-choice)
+                    (play-turn-player right-choice ticket-prize))]
+    (testing "Given a winner when play turn then ticket prize is given to winner"
+      (is (= (+ n-tickets ticket-prize) (:tickets a-winner))))
+    (testing "Given a loser when play turn the loser has still n-tickets"
+      (is (= n-tickets (:tickets a-loser))))
+    (testing "Given a loser when play turn then loser has lost"
+      (is (:lost a-loser)))))
 
 (deftest play-turn-game-test
   (let [wrong-choice :right
@@ -101,8 +101,8 @@
         number-of-tickets (apply + (conj (map :tickets (:players a-game)) (get :free-tickets a-game 0)))]
     (testing "When play turn the winner has not lost"
       (is (= number-of-winners (count
-                (filter #(not (:lost %))
-                        (:players played-turn-game))))))
+                                (filter #(not (:lost %))
+                                        (:players played-turn-game))))))
     (testing "When play turn then number of tickets is preserved"
       (is (= number-of-tickets (reduce + (get played-turn-game :free-tickets 0)
                                        (map #(:tickets %)
@@ -110,15 +110,15 @@
                                                     (:players played-turn-game)))))))
     (testing "When play turn then losers has lost"
       (is (= number-of-losers (count
-                (filter #(:lost %)
-                        (:players played-turn-game))))))))
+                               (filter #(:lost %)
+                                       (:players played-turn-game))))))))
 
 (deftest kick-losers-test
   (let [a-cleaned-game (-> a-game
                            (play-turn-game :right)
                            (kick-losers))
         losers (filter #(= :right (:choice %)) (:players (play-turn-game a-game :riht)))]
-  (testing "Given losers when kick losers then they are not in the game anymore"
-    (is (empty?
-         (filter :lost
-                 (:players a-cleaned-game)))))))
+    (testing "Given losers when kick losers then they are not in the game anymore"
+      (is (empty?
+           (filter :lost
+                   (:players a-cleaned-game)))))))
