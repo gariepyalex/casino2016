@@ -59,19 +59,18 @@
     (testing "Given a new game with max player then max player is set"
       (is (= max-player (:max-player a-new-game))))
     (testing "Given a new game when adding a player then a player is present in the game"
-      (is (not-empty
-           (filter #(= (:name %) (:name a-player))
-                   (:players (add-player a-new-game a-player))))))
+      (let [game-with-player (add-player a-new-game a-player)]
+        (is (= a-player (get-in game-with-player [:players (:name a-player)])))))
     (testing "Given a full game when adding a player then a player is not present in the game"
-      (is (empty?
-           (filter #(= (:name %) (:name a-player))
-                   (:players (add-player full-game a-player))))))
+      (is (not (contains? (add-player full-game a-player) (:name a-player)))))
     (testing "Given a game with a player when adding a player with same name then do not add player"
-      (is (= 1 (count
-                (filter #(= (:name %) (:name a-player))
-                        (:players (-> a-new-game
-                                      (add-player a-player)
-                                      (add-player a-player))))))))))
+      (let [game (-> a-new-game
+                     (add-player (-> (player "player-name")
+                                     (give-n-tickets 1)))
+                     (add-player (-> (player "player-name")
+                                     (give-n-tickets 2))))]
+        (is (= 1 (get-in game [:players "player-name" :tickets])))))))
+
 (deftest play-turn-player-test
   (let [n-tickets 2
         right-choice :right
@@ -96,29 +95,29 @@
   (let [wrong-choice :right
         right-choice :left
         played-turn-game (play-turn-game a-game right-choice)
-        number-of-losers (count (filter #(= wrong-choice (:choice %)) (:players a-game)))
-        number-of-winners (count (filter #(= right-choice (:choice %)) (:players a-game)))
-        number-of-tickets (apply + (conj (map :tickets (:players a-game)) (get :free-tickets a-game 0)))]
+        number-of-losers (count (filter #(= wrong-choice (:choice %)) (vals (:players a-game))))
+        number-of-winners (count (filter #(= right-choice (:choice %)) (vals (:players a-game))))
+        number-of-tickets (apply + (conj (map :tickets (vals (:players a-game))) (get :free-tickets a-game 0)))]
     (testing "When play turn the winner has not lost"
       (is (= number-of-winners (count
                                 (filter #(not (:lost %))
-                                        (:players played-turn-game))))))
+                                        (vals (:players played-turn-game)))))))
     (testing "When play turn then number of tickets is preserved"
       (is (= number-of-tickets (reduce + (get played-turn-game :free-tickets 0)
                                        (map #(:tickets %)
                                             (filter #(not (:lost %))
-                                                    (:players played-turn-game)))))))
+                                                    (vals (:players played-turn-game))))))))
     (testing "When play turn then losers has lost"
       (is (= number-of-losers (count
                                (filter #(:lost %)
-                                       (:players played-turn-game))))))))
+                                       (vals (:players played-turn-game)))))))))
 
 (deftest kick-losers-test
   (let [a-cleaned-game (-> a-game
                            (play-turn-game :right)
                            (kick-losers))
-        losers (filter #(= :right (:choice %)) (:players (play-turn-game a-game :riht)))]
+        losers (filter #(= :right (:choice %)) (vals (:players (play-turn-game a-game :right))))]
     (testing "Given losers when kick losers then they are not in the game anymore"
       (is (empty?
            (filter :lost
-                   (:players a-cleaned-game)))))))
+                   (vals (:players a-cleaned-game))))))))

@@ -11,15 +11,15 @@
 
 (defn new-game
   [max-player]
-  (assoc {} :players [] :max-player max-player))
+  (assoc {} :players {} :max-player max-player))
 
 (defn add-player [game player]
   (let [max-player (:max-player game)]
     (if (= max-player (count (:players game)))
       game
-      (if (some #{(:name player)} (map :name (:players game)))
+      (if (some #{(:name player)} (keys (:players game)))
         game
-        (update game :players conj player)))))
+        (assoc-in game [:players (:name player)] player)))))
 
 (defn play-turn-player [player choice ticket-prize]
   (if (= choice (:choice player))
@@ -27,23 +27,24 @@
     (assoc player :lost true)))
 
 (defn play-turn-game [game choice]
-  (let [losers (filter #(not= choice (:choice %)) (:players game))
-        winners (filter #(= choice (:choice %)) (:players game))
+  (let [losers (filter (fn [[k v]] (not= choice (:choice v))) (:players game))
+        winners (filter (fn [[k v]] (= choice (:choice v))) (:players game))
         nb-winners (count winners)
-        available-tickets (+ (apply + (map :tickets losers)) (get game :free-tickets 0))]
+        available-tickets (+ (apply + (map #(:tickets (second %)) losers)) (get game :free-tickets 0))]
     (let [ticket-prize (if (zero? nb-winners)
                          0
                          (quot available-tickets nb-winners))
           free-tickets (if (zero? nb-winners)
                          available-tickets
                          (mod available-tickets nb-winners))
-          player-turn-with-choice (fn [player]
-                                    (play-turn-player player choice ticket-prize))]
+          player-turn-with-choice (fn [[name-id player]]
+                                    [name-id (play-turn-player player choice ticket-prize)])]
       (-> game
-          (update :players #(map player-turn-with-choice %))
+          (update :players #(into {} (map player-turn-with-choice %)))
           (assoc :free-tickets free-tickets)))))
 
 (defn kick-losers [game]
-  (update game :players
-          (fn [players]
-            (filter #(not (:lost %)) players))))
+  (update game :players (fn [players]
+                          (->> players
+                               (filter (fn [[k v]] (not (:lost v))))
+                               (into {})))))
