@@ -48,3 +48,24 @@
                           (->> players
                                (filter (fn [[k v]] (not (:lost v))))
                                (into {})))))
+
+(defn kick-player [game player-name]
+  (update game :players (fn [players]
+                          (->> players
+                               (filter (fn [[k v]] (not= player-name (:name v))))
+                               (into {})))))
+
+
+(defn player-choose [game player-name choice]
+  (if (not-empty
+       (filter #(= player-name %)
+               (keys (:players game))))
+       (assoc-in game [:players player-name :choice] choice)
+       game))
+
+(defn player-bet [game player-name tickets]
+  (if (not-empty
+       (filter #(= player-name %)
+               (keys (:players game))))
+    (assoc-in game [:players player-name :tickets] tickets)
+    game))

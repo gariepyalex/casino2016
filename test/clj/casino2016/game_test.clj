@@ -121,3 +121,42 @@
       (is (empty?
            (filter :lost
                    (vals (:players a-cleaned-game))))))))
+
+(deftest player-choose-test
+  (let [a-choice :left]
+    (testing "Given a valid game when a player choose a choice then changee player choice"
+      
+      (let [a-player-name "bibi"
+            updated-game (player-choose a-game a-player-name a-choice)]
+      (is (= a-choice (get-in updated-game
+                              [:players a-player-name :choice]))))
+    (testing "Given a game and an invalid player when choose a choice then don't add player"
+      (let [invalid-name "kawabounga"
+            updated-game (player-choose a-game invalid-name a-choice)]
+        (is (empty? (filter #(= invalid-name %)
+                (keys (get updated-game :players))))))))))
+
+
+(deftest player-bet-test
+  (let [n 123]
+    (testing "Given a game when a player bet n tickets then player bet is n"
+      (let [a-player-name "bibi"
+            n 123
+            updated-game (player-bet a-game a-player-name n)]
+        (is (= n (get-in updated-game [:players a-player-name :tickets])))))
+    (testing "Given a game when an invalid name bet n tickets then game is unchanged"
+      (let [invalid-name "kawouabounga"
+            updated-game (player-bet a-game invalid-name n)]
+        (is (empty? (filter #(= invalid-name %)
+                            (keys (get updated-game :players)))))))))
+
+(deftest kick-player-test
+  (testing "Given a game when kick a player then player is not in game anymore"
+    (let [a-player-name "bibi"
+          updated-game (kick-player a-game a-player-name)]
+      (is (empty? (filter #(= a-player-name %)
+                          (keys (:players updated-game)))))))
+  (testing "Given a game when kick an invalid player then game has not changed"
+    (let [an-invalid-player "kawouabounga"
+          updated-game (kick-player a-game an-invalid-player)]
+      (is (= a-game updated-game)))))
