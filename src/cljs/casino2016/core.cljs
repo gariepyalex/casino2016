@@ -66,9 +66,14 @@
   (println state)
   (session/put! :game-state state))
 
-(defmethod event-handler :default
+(defmethod event-handler :casino2016.admin/kicked
   [_]
-  nil)
+  (println "kicked")
+  (session/put! :username nil))
+
+(defmethod event-handler :default
+  [event]
+  (:id event))
 
 (defonce state-listener (go-loop [event (<! ch-chsk)]
                           (event-handler event)

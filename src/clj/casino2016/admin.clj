@@ -8,10 +8,10 @@
   []
   {:game (game/new-game max-players)
    :taken-names #{}
-   :pending-players #{}
-   :sessions {}})
+   :pending-players #{}})
 
 (def state (ref (new-game)))
+(def sessions (ref {}))
 
 (defn- remove-pending-player
   [player-name]
@@ -42,7 +42,7 @@
 (defn admin-kick-player
   [name]
   (dosync
-   ;; TODO remove from actual game
+   (commute state update :game game/kick-player name)
    (commute state update :taken-names set/difference #{name})))
 
 (defn sign-up
@@ -51,9 +51,12 @@
    (when-not (some #{player-name} (:taken-names @state))
      (do (commute state update :taken-names conj player-name)
          (commute state update :pending-players conj player-name)
-         (when (contains? (:sessions @state) id)
-           (let [old-name (get-in @state [:sessions id])]
-             (commute state update :taken-names     set/difference #{old-name})
+         (when (contains? @sessions id)
+           (let [old-name (get @sessions id)]
+             (commute state update :taken-names set/difference #{old-name})
              (remove-pending-player old-name)))
-         (commute state assoc-in [:sessions id] player-name)))))
+         (commute sessions assoc id player-name)))))
 
+(defn player-name->session
+  [player-name]
+  (get (set/map-invert @sessions) player-name))

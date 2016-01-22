@@ -51,6 +51,15 @@
 ;; Game loop
 (defonce game-state (atom nil))
 
+(defn send-kick-message
+  [user-id]
+  (go (chsk-send! user-id [:casino2016.admin/kicked])))
+
+(defn kick-everyone
+  []
+  (doseq [client (:any @connected-uids)]
+    (send-kick-message client)))
+
 (defmulti event-handler
   (fn [event] (:id event)))
 
@@ -60,6 +69,7 @@
 
 (defmethod event-handler :casino2016.admin/reset
   [_]
+  (kick-everyone)
   (admin/reset))
 
 (defmethod event-handler :casino2016.admin/accept-player
@@ -68,6 +78,7 @@
 
 (defmethod event-handler :casino2016.admin/kick-player
   [{player-name :?data}]
+  (send-kick-message (admin/player-name->session player-name))
   (admin/admin-kick-player player-name))
 
 (defmethod event-handler :default
