@@ -1,5 +1,7 @@
 (ns casino2016.game
-  (:require [reagent.core :as reagent]
+  (:require [reagent.session :as session]
+            [reagent.core :as reagent]
+            [clojure.set :as set]
             [quil.core :as q :include-macros true]
             [quil.middleware :as m]))
 
@@ -40,8 +42,9 @@
   (q/fill 30 100 30)
   (q/ellipse 8 0 8 8))
 
-(defn create-ship []
-  {:pos [0 0]
+(defn create-ship
+  [ship-index]
+  {:pos [(- (* ship-index 30) 80) (- 10 (rand-int 20))]
    :dir (- (/ q/PI 2))
    :dir-change 0.0
    :speed 0.1
@@ -122,7 +125,8 @@
   (reset! run-animation? true)
   (q/rect-mode :center)
   (q/frame-rate 30)
-  {:ships {"toto" (create-ship)
+  {:ships {}
+   #_{"toto" (create-ship)
            "tata" (assoc (create-ship) :pos [30 0])
            "foo" (assoc (create-ship) :pos [-30 0])
            "bar" (assoc (create-ship) :pos [60 0])}
@@ -202,8 +206,19 @@
    {}
    ships))
 
+(defn add-new-players
+  [ships]
+  (let [players     (session/get-in [:game-state :game :players])
+        new-players (set/difference (set (keys players))
+                                    (set (keys ships)))]
+    (reduce (fn [ships new-player]
+              (assoc ships new-player (create-ship (count ships))))
+            ships
+            new-players)))
+
 (defn update-state [state]
   (-> state
+      (update :ships add-new-players)
       (update :ships wiggle-ships)
       (update :ships update-smoke-all-ships)
       (update-in [:stars] move-objects)
