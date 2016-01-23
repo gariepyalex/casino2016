@@ -9,8 +9,8 @@
 (def canvas-height 400)
 (def run-animation? (atom nil))
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
-(def ship-pos-x (map #(- (* 30 %) 100) (range)))
-(def ship-move-offset 200)
+(def ship-pos-x (map #(- (* 32 %) 100) (range)))
+(def ship-move-offset 250)
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -36,19 +36,25 @@
 (defn translate-v2 [[x y] [dx dy]]
   [(+ x dx) (+ y dy)])
 
-(defn render-ship [ship]
+(defn render-ship
+  [ship]
   (q/fill 50 80 50)
   (q/rect -2 0 5 14)
-  (q/fill 150 180 150)
+  (apply q/fill (:color ship))
   (q/triangle 0 -10 25 0 0 10)
   (q/fill 30 100 30)
-  (q/ellipse 8 0 8 8))
+  (q/ellipse 8 0 8 8)
+  (q/fill 255 255 255)
+  (q/text-size 15)
+  (q/text (:name ship) -30 -10))
 
 (defn create-ship
-  [taken-pos-x]
+  [name taken-pos-x]
   (let [base-pos [(first (filter #(not (contains? taken-pos-x %)) ship-pos-x))
                   (- 10 (rand-int 20))]]
-    {:base-pos base-pos
+    {:name name
+     :base-pos base-pos
+     :color (into [] (take 3 (repeatedly #(+ 100 (rand-int 156)))))
      :pos base-pos
      :dir (- (/ q/PI 2))
      :dir-change 0.0
@@ -206,7 +212,7 @@
                                     (set (keys ships)))]
     (reduce (fn [ships new-player]
               (let [taken-ship-pos-x (set (map #(first (:base-pos %)) (vals ships)))]
-                (assoc ships new-player (create-ship taken-ship-pos-x))))
+                (assoc ships new-player (create-ship new-player taken-ship-pos-x))))
             ships
             new-players)))
 
