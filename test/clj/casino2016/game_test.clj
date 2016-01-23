@@ -160,8 +160,12 @@
   (testing "Given a game when kick a player then player is not in game anymore"
     (let [a-player-name "bibi"
           updated-game (kick-player a-game a-player-name)]
-      (is (empty? (filter #(= a-player-name %)
-                          (keys (:players updated-game)))))))
+      (is (not (contains? updated-game a-player-name)))))
+  (testing "Given a game when kick a player then the number of players is decremented"
+    (let [a-player-name "bibi"
+          old-number-of-players (:number-of-players a-game)
+          updated-game (kick-player a-game a-player-name)]
+      (is (= (dec old-number-of-players) (:number-of-players updated-game)))))
   (testing "Given a game when kick an invalid player then game has not changed"
     (let [an-invalid-player "kawouabounga"
           updated-game (kick-player a-game an-invalid-player)]

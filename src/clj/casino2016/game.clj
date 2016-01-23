@@ -52,7 +52,11 @@
                                (into {})))))
 
 (defn kick-player [game player-name]
-  (update game :players dissoc player-name))
+  (if (contains? (:players game) player-name)
+    (-> game
+        (update :players dissoc player-name)
+        (update :number-of-players dec))
+    game))
 
 
 (defn player-choose [game player-name choice]
