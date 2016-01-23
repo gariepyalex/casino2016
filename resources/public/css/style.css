@@ -30,6 +30,10 @@ h1 {
     background-image: url("/img/right-arrow.png");
 }
 
+.player-arrow-selected {
+    background-color: blue;
+}
+
 .sign-up-form {
     margin-top: 30vh;
 }

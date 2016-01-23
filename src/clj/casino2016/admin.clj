@@ -57,6 +57,12 @@
              (remove-pending-player old-name)))
          (commute sessions assoc id player-name)))))
 
+(defn choose-move
+  [id choice]
+  (dosync
+   (let [player-name (get @sessions id)]
+     (commute state update :game game/player-choose player-name choice))))
+
 (defn player-name->session
   [player-name]
   (get (set/map-invert @sessions) player-name))

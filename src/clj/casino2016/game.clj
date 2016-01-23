@@ -59,12 +59,16 @@
     game))
 
 
+(defn- valid-choice?
+  [choice]
+  (or (= choice :left)
+      (= choice :right)))
+
 (defn player-choose [game player-name choice]
-  (if (not-empty
-       (filter #(= player-name %)
-               (keys (:players game))))
-       (assoc-in game [:players player-name :choice] choice)
-       game))
+  (if (and (contains? (:players game) player-name)
+           (valid-choice? choice))
+    (assoc-in game [:players player-name :choice] choice)
+    game))
 
 (defn player-bet [game player-name tickets]
   (if (not-empty

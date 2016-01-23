@@ -67,6 +67,10 @@
   [{user-id :uid username :?data}]
   (admin/sign-up user-id username))
 
+(defmethod event-handler :casino2016.player/choose-move
+  [{user-id :uid choice :?data}]
+  (admin/choose-move user-id choice))
+
 (defmethod event-handler :casino2016.admin/reset
   [_]
   (kick-everyone)
