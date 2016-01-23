@@ -10,6 +10,7 @@
 (def run-animation? (atom nil))
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
 (def ship-pos-x (map #(- (* 30 %) 100) (range)))
+(def ship-move-offset 200)
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -45,14 +46,16 @@
 
 (defn create-ship
   [taken-pos-x]
-  {:pos [(first (filter #(not (contains? taken-pos-x %)) ship-pos-x))
-         (- 10 (rand-int 20))]
-   :dir (- (/ q/PI 2))
-   :dir-change 0.0
-   :speed 0.1
-   :z 1.0
-   :smoke []
-   :render-fn render-ship})
+  (let [base-pos [(first (filter #(not (contains? taken-pos-x %)) ship-pos-x))
+                  (- 10 (rand-int 20))]]
+    {:base-pos base-pos
+     :pos base-pos
+     :dir (- (/ q/PI 2))
+     :dir-change 0.0
+     :speed 0.1
+     :z 1.0
+     :smoke []
+     :render-fn render-ship}))
 
 (defn render-star [star]
   (let [size (:size star)]
@@ -131,13 +134,6 @@
    :stars (take 200 (repeatedly random-star))
    :planets (take 50 (repeatedly random-planet))})
 
-(defn move-ship [ship]
-  (let [speed (+ 1.0 (* 7.0 (:speed ship)))
-        dir (:dir ship)
-        dx (* speed (q/cos dir))
-        dy (* speed (q/sin dir))]
-    (update-in ship [:pos] translate-v2 [dx dy])))
-
 (defn auto-rotate [entity]
   (let [dir-change (:dir-change entity)]
     (update-in entity [:dir] #(+ % dir-change))))
@@ -209,7 +205,7 @@
   (let [new-players (set/difference (set (keys players))
                                     (set (keys ships)))]
     (reduce (fn [ships new-player]
-              (let [taken-ship-pos-x (set (map #(first (:pos %)) (vals ships)))]
+              (let [taken-ship-pos-x (set (map #(first (:base-pos %)) (vals ships)))]
                 (assoc ships new-player (create-ship taken-ship-pos-x))))
             ships
             new-players)))
@@ -220,11 +216,30 @@
                                           (set (keys players)))]
     (apply dissoc ships players-to-remove)))
 
+(defn move-ship-left
+  [ship]
+  (assoc ship :pos (update (:base-pos ship) 0 - ship-move-offset)))
+
+(defn move-ship-right
+  [ship]
+  (assoc ship :pos (update (:base-pos ship) 0 + ship-move-offset)))
+
+(defn move-ships-to-player-choice
+  [ships players]
+  (reduce (fn [ships player-name]
+            (condp = (get-in players [player-name :choice])
+              :left (update ships player-name move-ship-left)
+              :right (update ships player-name move-ship-right)
+              ships))
+          ships
+          (keys ships)))
+
 (defn update-state [state]
   (let [players (session/get-in [:game-state :game :players])]
     (-> state
         (update :ships add-new-players players)
         (update :ships remove-players-not-in-game-anymore players)
+        (update :ships move-ships-to-player-choice players)
         (update :ships wiggle-ships)
         (update :ships update-smoke-all-ships)
         (update-in [:stars] move-objects)
