@@ -5,10 +5,11 @@
             [quil.core :as q :include-macros true]
             [quil.middleware :as m]))
 
-(def canvas-width 640)
+(def canvas-width 740)
 (def canvas-height 400)
 (def run-animation? (atom nil))
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
+(def ship-pos-x (map #(- (* 30 %) 80) (range)))
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -43,8 +44,9 @@
   (q/ellipse 8 0 8 8))
 
 (defn create-ship
-  [ship-index]
-  {:pos [(- (* ship-index 30) 80) (- 10 (rand-int 20))]
+  [taken-pos-x]
+  {:pos [(first (filter #(not (contains? taken-pos-x %)) ship-pos-x))
+         (- 10 (rand-int 20))]
    :dir (- (/ q/PI 2))
    :dir-change 0.0
    :speed 0.1
@@ -126,10 +128,6 @@
   (q/rect-mode :center)
   (q/frame-rate 30)
   {:ships {}
-   #_{"toto" (create-ship)
-           "tata" (assoc (create-ship) :pos [30 0])
-           "foo" (assoc (create-ship) :pos [-30 0])
-           "bar" (assoc (create-ship) :pos [60 0])}
    :stars (take 200 (repeatedly random-star))
    :planets (take 50 (repeatedly random-planet))})
 
@@ -207,22 +205,30 @@
    ships))
 
 (defn add-new-players
-  [ships]
-  (let [players     (session/get-in [:game-state :game :players])
-        new-players (set/difference (set (keys players))
-                                    (set (keys ships)))]
+  [ships players]
+  (let [new-players      (set/difference (set (keys players))
+                                         (set (keys ships)))
+        taken-ship-pos-x (set (map #(first (:pos %)) (vals ships)))]
     (reduce (fn [ships new-player]
-              (assoc ships new-player (create-ship (count ships))))
+              (assoc ships new-player (create-ship taken-ship-pos-x)))
             ships
             new-players)))
 
+(defn remove-players-not-in-game-anymore
+  [ships players]
+  (let [players-to-remove (set/difference (set (keys ships))
+                                          (set (keys players)))]
+    (apply dissoc ships players-to-remove)))
+
 (defn update-state [state]
-  (-> state
-      (update :ships add-new-players)
-      (update :ships wiggle-ships)
-      (update :ships update-smoke-all-ships)
-      (update-in [:stars] move-objects)
-      (update-in [:stars] move-star-in-screen)))
+  (let [players (session/get-in [:game-state :game :players])]
+    (-> state
+        (update :ships add-new-players players)
+        (update :ships remove-players-not-in-game-anymore players)
+        (update :ships wiggle-ships)
+        (update :ships update-smoke-all-ships)
+        (update-in [:stars] move-objects)
+        (update-in [:stars] move-star-in-screen))))
 
 (defn draw-entity [entity [cam-x cam-y]]
   (let [[x y] (:pos entity)
