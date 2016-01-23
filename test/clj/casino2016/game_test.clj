@@ -42,7 +42,8 @@
 
 (deftest new-game-initialization
   (testing "A new game has no players"
-    (is (empty? (:players a-new-game)))))
+    (is (empty? (:players a-new-game)))
+    (is (zero? (:number-of-players a-new-game)))))
 
 (deftest add-player-test
   (let [max-player 8
@@ -69,7 +70,12 @@
                                      (give-n-tickets 1)))
                      (add-player (-> (player "player-name")
                                      (give-n-tickets 2))))]
-        (is (= 1 (get-in game [:players "player-name" :tickets])))))))
+        (is (= 1 (get-in game [:players "player-name" :tickets])))))
+    (testing "Given a game when adding a player then the number of players is incremented"
+      (let [game-with-two-players (-> a-new-game
+                                      (add-player (player "toto"))
+                                      (add-player (player "tata")))]
+        (is (= 2 (:number-of-players game-with-two-players)))))))
 
 (deftest play-turn-player-test
   (let [n-tickets 2

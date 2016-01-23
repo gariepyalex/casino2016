@@ -11,7 +11,7 @@
 
 (defn new-game
   [max-player]
-  (assoc {} :players {} :max-player max-player))
+  (assoc {} :players {} :max-player max-player :number-of-players 0))
 
 (defn add-player [game player]
   (let [max-player (:max-player game)]
@@ -19,7 +19,9 @@
       game
       (if (some #{(:name player)} (keys (:players game)))
         game
-        (assoc-in game [:players (:name player)] player)))))
+        (-> game
+            (assoc-in [:players (:name player)] player)
+            (update :number-of-players inc))))))
 
 (defn play-turn-player [player choice ticket-prize]
   (if (= choice (:choice player))
