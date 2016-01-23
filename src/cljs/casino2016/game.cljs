@@ -49,6 +49,7 @@
 
 (defn create-star [pos]
   {:pos pos
+   :speed 0.6
    :dir (rand q/TWO-PI)
    :size (+ 1.0 (rand 3.0))
    :z (rand-between 0.2 0.7)
@@ -155,19 +156,20 @@
 (defn remove-old-smokes [smokes]
   (remove old? smokes))
 
-(defn move-smokes
-  [smokes]
-  (map (fn [smoke] (update smoke :pos
-         (fn [[x y]] [x (+ y (:speed smoke))])))
-       smokes))
+(defn move-objects
+  [objects]
+  (map (fn [o] (update o :pos
+         (fn [[x y]] [x (+ y (* (:z o) (:speed o)))])))
+       objects))
 
 (defn update-state [state]
   (-> state
       (update-in [:ship] wiggle-ship)
       emit-smoke
       (update-in [:smoke] (fn [smokes] (map age-smoke smokes)))
-      (update-in [:smoke] move-smokes)
-      (update-in [:smoke] remove-old-smokes)))
+      (update-in [:smoke] move-objects)
+      (update-in [:smoke] remove-old-smokes)
+      (update-in [:stars] move-objects)))
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -196,7 +198,7 @@
   (q/no-stroke)
   (let [ship-pos (-> state :ship :pos)
         cam-pos (translate-v2 ship-pos [(- (/ (q/width) 2))
-                                        (- (/ (q/height) 2))])]
+                                        (- (* 5 (/ (q/height) 6)))])]
     (doseq [star (:stars state)]
       (draw-entity star cam-pos))
     (doseq [smoke (:smoke state)]
