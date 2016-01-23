@@ -35,8 +35,8 @@
   (q/ellipse 8 0 8 8))
 
 (defn create-ship []
-  {:pos [-1000 1000]
-   :dir -0.4
+  {:pos [0 0]
+   :dir (- (/ q/PI 2))
    :dir-change 0.0
    :speed 0.1
    :z 1.0
@@ -73,6 +73,7 @@
    :col [(rand-between 150 255)
          (rand-between 100 200)
          (rand-between 0 100)]
+   :speed 1
    :render-fn render-smoke})
 
 (defn render-planet [planet]
@@ -154,37 +155,19 @@
 (defn remove-old-smokes [smokes]
   (remove old? smokes))
 
+(defn move-smokes
+  [smokes]
+  (map (fn [smoke] (update smoke :pos
+         (fn [[x y]] [x (+ y (:speed smoke))])))
+       smokes))
+
 (defn update-state [state]
   (-> state
-      (update-in [:ship] auto-rotate)
       (update-in [:ship] wiggle-ship)
-      (update-in [:ship] move-ship)
       emit-smoke
       (update-in [:smoke] (fn [smokes] (map age-smoke smokes)))
-      (update-in [:smoke] remove-old-smokes)
-      (update-in [:planets] #(map auto-rotate %))
-      (update-in [:planets] #(map drift-planet %))))
-
-(defn faster [speed]
-  (min 1.0 (+ speed 0.25)))
-
-(defn slower [speed]
-  (max 0.0 (- speed 0.25)))
-
-(defn on-key-down [state event]
-  (case (:key event)
-    (:w :up) (update-in state [:ship :speed] faster)
-    (:s :down) (update-in state [:ship :speed] slower)
-    (:a :left) (assoc-in state [:ship :dir-change] -0.15)
-    (:d :right) (assoc-in state [:ship :dir-change] 0.15)
-    (:q toto) (q/exit)
-    state))
-
-(defn on-key-up [state]
-  (if (contains? #{:left :right :a :d}
-                 (q/key-as-keyword))
-    (assoc-in state [:ship :dir-change] 0)
-    state))
+      (update-in [:smoke] move-smokes)
+      (update-in [:smoke] remove-old-smokes)))
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -225,8 +208,6 @@
   :size [canvas-width canvas-height]
   :setup setup
   :update update-state
-  :key-pressed on-key-down
-  :key-released on-key-up
   :draw draw-state
   :middleware [m/fun-mode])
 
