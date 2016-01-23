@@ -68,7 +68,6 @@
 
 (defmethod event-handler :casino2016.admin/kicked
   [_]
-  (println "kicked")
   (session/put! :username nil))
 
 (defmethod event-handler :default

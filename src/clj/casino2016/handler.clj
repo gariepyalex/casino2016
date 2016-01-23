@@ -76,6 +76,10 @@
   [{player-name :?data}]
   (admin/admin-accept-player player-name))
 
+(defmethod event-handler :casino2016.admin/add-player
+  [{player-name :?data}]
+  (admin/admin-add-player player-name))
+
 (defmethod event-handler :casino2016.admin/kick-player
   [{player-name :?data}]
   (send-kick-message (admin/player-name->session player-name))

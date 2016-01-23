@@ -30,7 +30,7 @@
   (dosync
    (when-not (some #{player-name} (:taken-names @state))
      (do (commute state update :taken-names conj player-name)
-         (admin-add-player player-name)))))
+         (add-player-to-game player-name)))))
 
 (defn admin-accept-player
   [name]

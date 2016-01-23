@@ -1,5 +1,6 @@
 (ns casino2016.player
-  (:require [reagent.session :as session]
+  (:require [reagent.core :as r]
+            [reagent.session :as session]
             [reagent.cookies :as cookies]
             [clojure.string :refer [blank?]]))
 
@@ -15,13 +16,13 @@
 
 (defn form-sign-up-for-game
   [chsk-send!]
-  (let [name (atom nil)]
+  (let [name (r/atom nil)]
     (fn []
       [:div.sign-up-form
-       [:input.sign-up-name {:placeholder "Your name"
+       [:input.sign-up-name {:placeholder "Votre nom"
                              :on-change #(reset! name (-> % .-target .-value))}]
        [:button.sign-up-button {:on-click #(sign-up-game! chsk-send! @name)}
-        "Enter game"]])))
+        "Jouer"]])))
 
 (defn playing-arrows
   []

@@ -1,12 +1,30 @@
 (ns casino2016.admin
-  (:require [reagent.session :as session]))
+  (:require [reagent.core :as r]
+            [reagent.session :as session]
+            [clojure.string :refer [blank?]]))
+
+(defn add-player!
+  [chsk-send! username]
+  (when (not (blank? username))
+    (chsk-send! [::add-player username])))
+
+(defn add-player-view
+  [chsk-send!]
+  (let [name (r/atom nil)]
+    (fn []
+      [:div
+       [:h4 "Ajouter un joueur"]
+       [:input {:placeholder "Nom du joueur"
+                :on-change #(reset! name (-> % .-target .-value))
+                :value @name}]
+       [:button {:on-click #(do (add-player! chsk-send! @name) (reset! name nil))} "Ajouter"]])))
 
 (defn players-in-game-view
   [chsk-send!]
   (fn []
     (let [{:keys [number-of-players max-player players]} (session/get-in [:game-state :game])]
       [:div
-       [:h3 (str "Players (" number-of-players "/" max-player ")")]
+       [:h3 (str "Joueurs (" number-of-players "/" max-player ")")]
        [:ul (for [name (keys players)]
               (into [:li.admin-player-entry]
                     [[:p.admin-accepted-player name]
@@ -16,7 +34,7 @@
   [chsk-send!]
   (fn []
     [:div
-     [:h3 "Pending"]
+     [:h3 "En attente"]
      [:ul (for [name (session/get-in [:game-state :pending-players])]
             (into [:li.admin-player-entry]
                   [[:p.admin-pending-player name]
@@ -43,6 +61,7 @@
   (fn []
     [:div
      [:h1 "Admin"]
+     [(add-player-view chsk-send!)]
      [(player-view chsk-send!)]
      [(admin-actions chsk-send!)]]))
 
