@@ -6,6 +6,12 @@
 (def canvas-width 640)
 (def canvas-height 400)
 (def run-animation? (atom nil))
+(def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
+
+(defn on-screen? [x y]
+  (let [margin 100]
+    (and (<= (- margin) x (+ margin (q/width)))
+         (<= (- margin) y (+ margin (q/height))))))
 
 (defn pulse [low high rate]
   (let [diff (- high low)
@@ -56,7 +62,7 @@
    :render-fn render-star})
 
 (defn random-star []
-  (create-star (rand-coord 1000)))
+  (create-star (rand-coord (/ (q/width) 2))))
 
 (defn render-smoke [smoke]
   (let [age (:age smoke)
@@ -117,7 +123,7 @@
   (q/frame-rate 30)
   {:ship (create-ship)
    :smoke []
-   :stars (take 3000 (repeatedly random-star))
+   :stars (take 200 (repeatedly random-star))
    :planets (take 50 (repeatedly random-planet))})
 
 (defn move-ship [ship]
@@ -162,6 +168,18 @@
          (fn [[x y]] [x (+ y (* (:z o) (:speed o)))])))
        objects))
 
+(defn- random-star-position
+  [[x y :as old-position]]
+  [x (- (second cam-pos) (rand-int 100))])
+
+(defn move-star-in-screen
+  [stars]
+  (map (fn [{[x y] :pos :as star}]
+         (if (< y (+ canvas-height (second cam-pos) 10))
+           star
+           (update star :pos random-star-position)))
+       stars))
+
 (defn update-state [state]
   (-> state
       (update-in [:ship] wiggle-ship)
@@ -169,20 +187,16 @@
       (update-in [:smoke] (fn [smokes] (map age-smoke smokes)))
       (update-in [:smoke] move-objects)
       (update-in [:smoke] remove-old-smokes)
-      (update-in [:stars] move-objects)))
-
-(defn on-screen? [x y]
-  (let [margin 100]
-    (and (<= (- margin) x (+ margin (q/width)))
-         (<= (- margin) y (+ margin (q/height))))))
+      (update-in [:stars] move-objects)
+      (update-in [:stars] move-star-in-screen)))
 
 (defn draw-entity [entity [cam-x cam-y]]
   (let [[x y] (:pos entity)
         dir (:dir entity)
         z (:z entity)
         render-fn (:render-fn entity)
-        screen-x (- x (* z cam-x))
-        screen-y (- y (* z cam-y))]
+        screen-x (- x cam-x)
+        screen-y (- y cam-y)]
     (when (on-screen? screen-x screen-y)
       (q/push-matrix)
       (q/translate screen-x screen-y)
@@ -196,9 +210,7 @@
                 (pulse 40 60 40.0)
                 (pulse 50 70 5.0))
   (q/no-stroke)
-  (let [ship-pos (-> state :ship :pos)
-        cam-pos (translate-v2 ship-pos [(- (/ (q/width) 2))
-                                        (- (* 5 (/ (q/height) 6)))])]
+  (let [ship-pos (-> state :ship :pos)]
     (doseq [star (:stars state)]
       (draw-entity star cam-pos))
     (doseq [smoke (:smoke state)]
