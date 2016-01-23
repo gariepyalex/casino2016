@@ -42,10 +42,10 @@
     (let [state (session/get :game-state)
           name  (session/get :username)]
       [:div
-       [:h1 name]
+       [:h2 name]
        (if (contains? (get-in state [:game :players]) name)
          [:div
-          [:h2 "Choisir une direction"]
+          [:h3 "Choisir une direction"]
           [:div.player-container
            [:div.player-arrow.player-arrow-left (arrows-properties name :left chsk-send!)]
            [:div.player-arrow.player-arrow-right (arrows-properties name :right chsk-send!)]]]

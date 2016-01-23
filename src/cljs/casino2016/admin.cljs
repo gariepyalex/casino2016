@@ -8,6 +8,10 @@
   (when (not (blank? username))
     (chsk-send! [::add-player username])))
 
+(defn choose-move-for-player
+  [chsk-send! player-name choice]
+  (chsk-send! [::choose-move {:player-name player-name :choice choice}]))
+
 (defn add-player-view
   [chsk-send!]
   (let [name (r/atom nil)]
@@ -28,6 +32,8 @@
        [:ul (for [name (keys players)]
               (into [:li.admin-player-entry]
                     [[:p.admin-accepted-player name]
+                     [:button {:on-click #(choose-move-for-player chsk-send! name :left)} "\u2190"]
+                     [:button {:on-click #(choose-move-for-player chsk-send! name :right)} "\u2192"]
                      [:button {:on-click #(chsk-send! [::kick-player name])} "kick"]]))]])))
 
 (defn pending-players-view

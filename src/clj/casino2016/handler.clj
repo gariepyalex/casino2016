@@ -89,6 +89,10 @@
   (send-kick-message (admin/player-name->session player-name))
   (admin/admin-kick-player player-name))
 
+(defmethod event-handler :casino2016.admin/choose-move
+  [{user-id :uid {:keys [player-name choice]} :?data}]
+  (admin/admin-choose-move player-name choice))
+
 (defmethod event-handler :default
   [event]
   nil)

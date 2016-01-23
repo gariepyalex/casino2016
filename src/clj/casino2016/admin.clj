@@ -45,6 +45,11 @@
    (commute state update :game game/kick-player name)
    (commute state update :taken-names set/difference #{name})))
 
+(defn admin-choose-move
+  [player-name choice]
+  (dosync
+   (commute state update :game game/player-choose player-name choice)))
+
 (defn sign-up
   [id player-name]
   (dosync
