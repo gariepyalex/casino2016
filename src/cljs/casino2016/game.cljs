@@ -46,6 +46,7 @@
    :dir-change 0.0
    :speed 0.1
    :z 1.0
+   :smoke []
    :render-fn render-ship})
 
 (defn render-star [star]
@@ -121,8 +122,10 @@
   (reset! run-animation? true)
   (q/rect-mode :center)
   (q/frame-rate 30)
-  {:ship (create-ship)
-   :smoke []
+  {:ships {"toto" (create-ship)
+           "tata" (assoc (create-ship) :pos [30 0])
+           "foo" (assoc (create-ship) :pos [-30 0])
+           "bar" (assoc (create-ship) :pos [60 0])}
    :stars (take 200 (repeatedly random-star))
    :planets (take 50 (repeatedly random-planet))})
 
@@ -142,16 +145,22 @@
         a (+ 0.01 (* 0.03 speed))]
     (update-in ship [:dir] #(+ % (pulse (- a) a 0.1)))))
 
+(defn wiggle-ships
+  [ships]
+  (reduce
+   (fn [ships [name ship]] (assoc ships name (wiggle-ship ship)))
+   {}
+   ships))
+
 (defn drift-planet [planet]
   (let [[dx dy] (:drift planet)]
     (update-in planet [:pos] translate-v2 [dx dy])))
 
-(defn emit-smoke [state]
-  (let [speed (-> state :ship :speed)]
-    (if (< (rand) (+ 0.2 speed))
-      (let [ship-pos (-> state :ship :pos)]
-        (update-in state [:smoke] conj (create-smoke ship-pos)))
-      state)))
+(defn emit-smoke
+  [ship]
+  (if (< (rand) 0.2)
+    (update-in ship [:smoke] conj (create-smoke (:pos ship)))
+    ship))
 
 (defn age-smoke [smoke]
   (update-in smoke [:age] #(+ % 0.033)))
@@ -180,13 +189,23 @@
            (update star :pos random-star-position)))
        stars))
 
+(defn update-smoke-all-ships
+  [ships]
+  (reduce
+   (fn [ships [name ship]]
+     (assoc ships name
+            (-> ship
+                emit-smoke
+                (update :smoke #(map age-smoke %))
+                (update :smoke move-objects)
+                (update :smoke remove-old-smokes))))
+   {}
+   ships))
+
 (defn update-state [state]
   (-> state
-      (update-in [:ship] wiggle-ship)
-      emit-smoke
-      (update-in [:smoke] (fn [smokes] (map age-smoke smokes)))
-      (update-in [:smoke] move-objects)
-      (update-in [:smoke] remove-old-smokes)
+      (update :ships wiggle-ships)
+      (update :ships update-smoke-all-ships)
       (update-in [:stars] move-objects)
       (update-in [:stars] move-star-in-screen)))
 
@@ -210,12 +229,12 @@
                 (pulse 40 60 40.0)
                 (pulse 50 70 5.0))
   (q/no-stroke)
-  (let [ship-pos (-> state :ship :pos)]
-    (doseq [star (:stars state)]
-      (draw-entity star cam-pos))
-    (doseq [smoke (:smoke state)]
+  (doseq [star (:stars state)]
+    (draw-entity star cam-pos))
+  (doseq [[_ ship] (:ships state)]
+    (doseq [smoke (:smoke ship)]
       (draw-entity smoke cam-pos))
-    (draw-entity (:ship state) cam-pos)))
+    (draw-entity ship cam-pos)))
 
 (q/defsketch nanoscopic
   :host "game-canvas"
