@@ -29,14 +29,14 @@
         name  (session/get :username)]
     [:div
      [:h1 name]
-     (if (contains? (:pending-players state) name)
-       [:div
-        [:h2 "En attente d'approbation"]]
+     (if (contains? (get-in state [:game :players]) name)
        [:div
         [:h2 "Choisir une direction"]
         [:div.player-container
          [:div.player-arrow.player-arrow-left {:on-click #(js/alert "left")}]
-         [:div.player-arrow.player-arrow-right {:on-click #(js/alert "right")}]]])]))
+         [:div.player-arrow.player-arrow-right {:on-click #(js/alert "right")}]]]
+       [:div
+        [:h2 "En attente d'approbation"]])]))
 
 (defn page
   [chsk-send!]
