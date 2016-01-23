@@ -5,11 +5,11 @@
             [quil.core :as q :include-macros true]
             [quil.middleware :as m]))
 
-(def canvas-width 740)
+(def canvas-width 800)
 (def canvas-height 400)
 (def run-animation? (atom nil))
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
-(def ship-pos-x (map #(- (* 30 %) 80) (range)))
+(def ship-pos-x (map #(- (* 30 %) 100) (range)))
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -206,11 +206,11 @@
 
 (defn add-new-players
   [ships players]
-  (let [new-players      (set/difference (set (keys players))
-                                         (set (keys ships)))
-        taken-ship-pos-x (set (map #(first (:pos %)) (vals ships)))]
+  (let [new-players (set/difference (set (keys players))
+                                    (set (keys ships)))]
     (reduce (fn [ships new-player]
-              (assoc ships new-player (create-ship taken-ship-pos-x)))
+              (let [taken-ship-pos-x (set (map #(first (:pos %)) (vals ships)))]
+                (assoc ships new-player (create-ship taken-ship-pos-x))))
             ships
             new-players)))
 
