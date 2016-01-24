@@ -1,5 +1,6 @@
 body {
     font-size: 1.3em;
+    background-color: #263238;
 }
 
 h1 {
@@ -77,7 +78,15 @@ h1 {
     color: red;
 }
 
+.game-title {
+    text-align: center;
+    color: white;
+    font: bold italic 60px sans-sherif;
+    text-shadow: 4px 4px 0 black;
+}
+
 #game-canvas {
     display: block;
     margin: 0 auto;
+    border: white solid 5px;
 }

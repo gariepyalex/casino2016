@@ -5,9 +5,9 @@
             [quil.core :as q :include-macros true]
             [quil.middleware :as m]))
 
+(def animation-state (atom {}))
 (def canvas-width 800)
 (def canvas-height 400)
-(def run-animation? (atom nil))
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
 (def ship-pos-x (map #(- (* 32 %) 100) (range)))
 (def ship-move-offset 250)
@@ -133,7 +133,7 @@
                   (rand-between 50 150)]))
 
 (defn setup []
-  (reset! run-animation? true)
+  (swap! animation-state assoc :run-animation? true)
   (q/rect-mode :center)
   (q/frame-rate 30)
   {:ships {}
@@ -266,7 +266,7 @@
       (q/pop-matrix))))
 
 (defn draw-state [state]
-  (when-not @run-animation? (q/exit))
+  (when-not (:run-animation? @animation-state) (q/exit))
   (q/background (pulse 20 40  15.0)
                 (pulse 40 60 40.0)
                 (pulse 50 70 5.0))
@@ -288,11 +288,13 @@
 
 (defn game-container
   []
-  [:div [:canvas#game-canvas]])
+  [:div
+   [:h1.game-title "2016: A Casino Odyssey"]
+   [:canvas#game-canvas]])
 
 (defn page
   []
   (reagent/create-class
    {:reagent-render game-container
     :component-did-mount nanoscopic
-    :component-will-unmount #(reset! run-animation? false)}))
+    :component-will-unmount #(swap! animation-state assoc :run-animation? false)}))
