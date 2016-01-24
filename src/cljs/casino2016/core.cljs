@@ -35,7 +35,7 @@
 
 (secretary/defroute "/admin"
   []
-  (session/put! :current-page (admin/page chsk-send!)))
+  (session/put! :current-page (admin/page chsk chsk-send!)))
 
 (secretary/defroute "/game"
   []

@@ -3,11 +3,13 @@
             [compojure.core :include-macros true :refer [defroutes GET POST]]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+            [ring.middleware.transit :refer [wrap-transit-body]]
             [ring.util.response :as response]
             [hiccup.page :as hiccup]
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
-            [casino2016.admin :as admin]))
+            [casino2016.admin :as admin]
+            [casino2016.password :as password]))
 
 (def web-app (hiccup/html5
               [:html
@@ -24,7 +26,7 @@
 ;; Ring/Compojure route
 (defn cookie-as-user-id
   [request]
-  (:session/key request))
+  (get-in request [:cookies "ring-session" :value]))
 
 (let [{:keys [ch-recv
               send-fn
@@ -32,20 +34,34 @@
               ajax-get-or-ws-handshake-fn
               connected-uids]}
       (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn cookie-as-user-id})]
-  (def ring-ajax-post                ajax-post-fn)
-  (def ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
-  (def ch-chsk                       ch-recv)
-  (def chsk-send!                    send-fn)
-  (def connected-uids                connected-uids))
+  (defonce ring-ajax-post                ajax-post-fn)
+  (defonce ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
+  (defonce ch-chsk                       ch-recv)
+  (defonce chsk-send!                    send-fn)
+  (defonce connected-uids                connected-uids))
+
+(defn admin-login!
+  [request]
+  (let [{:keys [session body]} request
+        {:keys [password]}     body]
+    (if (password/is-admin? password)
+      {:status 200 :session (assoc session :role :admin)}
+      {:status 401})))
 
 (defroutes handler
   (GET "/" [] web-app)
   (GET  "/chsk" req (ring-ajax-get-or-ws-handshake req))
   (POST "/chsk" req (ring-ajax-post                req))
+  (POST "/admin-login" req (admin-login! req))
   (GET "/*" [] (response/redirect "/"))
   (route/resources "/"))
 
-(def app (wrap-defaults handler site-defaults))
+(def app (-> handler
+             (wrap-defaults (-> site-defaults
+                                (assoc-in [:responses :content-types] true)
+                                (assoc-in [:session :flash] false)
+                                (assoc-in [:security :anti-forgery] false)))
+             (wrap-transit-body)))
 
 ;;======================================================
 ;; Game loop
@@ -60,6 +76,15 @@
   (doseq [client (:any @connected-uids)]
     (send-kick-message client)))
 
+(defn wrap-verify-role
+  [handler]
+  (fn [{:keys [id ring-req] :as event}]
+    (if (= (namespace id) "casino2016.admin")
+      (let [role (get-in ring-req [:session :role])]
+        (when (= :admin role)
+          (handler event)))
+      (handler event))))
+
 (defmulti event-handler
   (fn [event] (:id event)))
 
@@ -72,7 +97,7 @@
   (admin/choose-move user-id choice))
 
 (defmethod event-handler :casino2016.admin/reset
-  [_]
+  [{ring-request :ring-req}]
   (kick-everyone)
   (admin/reset))
 
@@ -86,7 +111,8 @@
 
 (defmethod event-handler :casino2016.admin/kick-player
   [{player-name :?data}]
-  (send-kick-message (admin/player-name->session player-name))
+  (when-let [session (admin/player-name->session player-name)]
+    (send-kick-message session))
   (admin/admin-kick-player player-name))
 
 (defmethod event-handler :casino2016.admin/choose-move
@@ -105,8 +131,9 @@
 (defn event-loop
   []
   (broadcast-state!)
-  (go-loop [event (<! ch-chsk)]
-    (event-handler event)
-    (broadcast-state!)
-    (recur (<! ch-chsk))))
+  (let [handler (wrap-verify-role event-handler)]
+    (go-loop [event (<! ch-chsk)]
+      (handler event)
+      (broadcast-state!)
+      (recur (<! ch-chsk)))))
 

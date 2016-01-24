@@ -1,6 +1,8 @@
 (ns casino2016.admin
-  (:require [reagent.core :as r]
+  (:require [taoensso.sente :as sente]
+            [reagent.core :as r]
             [reagent.session :as session]
+            [ajax.core :refer [POST]]
             [clojure.string :refer [blank?]]))
 
 (defn add-player!
@@ -62,7 +64,7 @@
       [:button "Start game"]
       [:button {:on-click #(chsk-send! [::reset])} "Reset"]]]))
 
-(defn page
+(defn admin-view
   [chsk-send!]
   (fn []
     [:div
@@ -70,4 +72,30 @@
      [(add-player-view chsk-send!)]
      [(player-view chsk-send!)]
      [(admin-actions chsk-send!)]]))
+
+(defn login-view
+  [chsk]
+  (let [password (r/atom nil)
+        error?   (r/atom nil)]
+    (fn []
+      [:div
+       (when @error?
+         [:p.error "Entrez un mot de passe valide"])
+       [:input {:placeholder "Mot de passe admin"
+                :on-change #(reset! password (-> % .-target .-value))
+                :value @password}]
+       [:button {:on-click (fn [] (POST "/admin-login"
+                                      {:method :post
+                                       :params {:password @password}
+                                       :handler #(do (session/put! :is-admin? true)
+                                                     (sente/chsk-reconnect! chsk))
+                                       :error-handler #(reset! error? true)}))}
+        "Login"]])))
+
+(defn page
+  [chsk chsk-send!]
+  (fn []
+    (if (session/get :is-admin?)
+        [(admin-view chsk-send!)]
+        [(login-view chsk)])))
 

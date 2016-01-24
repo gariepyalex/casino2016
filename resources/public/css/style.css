@@ -7,6 +7,10 @@ h1 {
     color: blue;
 }
 
+.error {
+    color: red;
+}
+
 .player-container {
     width: 85%;
     margin: 0 auto;
