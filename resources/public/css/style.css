@@ -3,6 +3,10 @@ body {
     background-color: #263238;
 }
 
+#app {
+    background-color: white;
+}
+
 h1 {
     color: blue;
 }
@@ -80,6 +84,10 @@ h1 {
 
 .admin-pending-player {
     color: red;
+}
+
+.game-page {
+    background-color: #263238;
 }
 
 .game-title {

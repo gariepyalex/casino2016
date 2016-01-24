@@ -288,7 +288,7 @@
 
 (defn game-container
   []
-  [:div
+  [:div.game-page
    [:h1.game-title "2016: A Casino Odyssey"]
    [:canvas#game-canvas]])
 
