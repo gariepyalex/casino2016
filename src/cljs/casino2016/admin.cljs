@@ -82,7 +82,8 @@
       [:div
        (when @error?
          [:p.error "Entrez un mot de passe valide"])
-       [:input {:placeholder "Mot de passe admin"
+       [:input {:type "password"
+                :placeholder "Mot de passe admin"
                 :on-change #(reset! password (-> % .-target .-value))
                 :value @password}]
        [:button {:on-click (fn [] (POST "/admin-login"

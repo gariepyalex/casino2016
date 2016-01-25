@@ -331,7 +331,9 @@
   []
   [:div.game-page
    [:h1.game-title "2016: A Casino Odyssey"]
-   [:canvas#game-canvas]])
+   [:canvas#game-canvas]
+   (when-let [winner (session/get-in [:game-state :game :last-man-standing])]
+     [:h2.game-winner (str winner " gagne!!!")])])
 
 (defn page
   [chsk-send!]
