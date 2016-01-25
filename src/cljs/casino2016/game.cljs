@@ -115,22 +115,22 @@
   (into [] (take (+ 5 (rand-int 7))
                  (repeatedly #(rand-between 0.5 1.0)))))
 
-(defn create-planet [pos color]
-  {:pos pos
+(defn random-planet-color
+  []
+  [(rand-between 0 255)
+   (rand-between 50 150)
+   (rand-between 50 150)])
+
+(defn create-planet [pos-x]
+  {:pos [pos-x (- (+ canvas-height (rand-int 100)))]
    :dir (rand q/TWO-PI)
-   :dir-change (rand-between -0.01 0.01)
-   :size (+ 50.0 (rand 50.0))
-   :drift [(rand-between -0.3 0.3) (rand-between -0.3 0.3)]
-   :color color
+   :dir-change (rand-between -0.03 0.03)
+   :size (+ 80.0 (rand 50.0))
+   :drift [0 7]
+   :color (random-planet-color)
    :z 1.0
    :rs (generate-radiuses)
    :render-fn render-planet})
-
-(defn random-planet []
-  (create-planet (rand-coord 1000)
-                 [(rand-between 0 255)
-                  (rand-between 50 150)
-                  (rand-between 50 150)]))
 
 (defn setup []
   (swap! animation-state assoc :run-animation? true)
@@ -138,7 +138,7 @@
   (q/frame-rate 30)
   {:ships {}
    :stars (take 200 (repeatedly random-star))
-   :planets (take 50 (repeatedly random-planet))})
+   :death-animations []})
 
 (defn auto-rotate [entity]
   (let [dir-change (:dir-change entity)]
@@ -158,7 +158,9 @@
 
 (defn drift-planet [planet]
   (let [[dx dy] (:drift planet)]
-    (update-in planet [:pos] translate-v2 [dx dy])))
+    (-> planet
+        (update-in [:pos] translate-v2 [dx dy])
+        (update-in [:dir] + (:dir-change planet)))))
 
 (defn emit-smoke
   [ship]
@@ -240,6 +242,42 @@
           ships
           (keys ships)))
 
+(defn create-death-meteor
+  [direction]
+  (let [x-positions (if (= :right direction)
+                      (range 100 (/ canvas-width 2) 60)
+                      (range -100 (- (/ canvas-width 2)) -60))]
+    (shuffle (map create-planet x-positions))))
+
+(defn create-animations
+  [animations]
+  (let [wrong-choice (session/get-in [:game-state :game :wrong-choice])]
+    (if (and (empty? animations) (not (nil? wrong-choice)))
+      (create-death-meteor wrong-choice)
+      animations)))
+
+(defn delete-old-animations
+  [animations]
+  (remove #(< 150 (second (:pos %))) animations))
+
+(defn kill-ships!
+  [animations]
+  (when (not (empty? animations))
+    (let [average-y (/ (apply + (map #(second (:pos %)) animations))
+                       (count animations))]
+      (when (< 0 average-y)
+        ((:channel-send-fn @animation-state) [:casino2016.game/kick-loosers]))))
+  animations)
+
+(defn update-death-animations
+  [animations]
+  (->> animations
+       create-animations
+       (map drift-planet)
+       delete-old-animations
+       kill-ships!
+       (into [])))
+
 (defn update-state [state]
   (let [players (session/get-in [:game-state :game :players])]
     (-> state
@@ -249,7 +287,8 @@
         (update :ships wiggle-ships)
         (update :ships update-smoke-all-ships)
         (update-in [:stars] move-objects)
-        (update-in [:stars] move-star-in-screen))))
+        (update-in [:stars] move-star-in-screen)
+        (update-in [:death-animations] update-death-animations))))
 
 (defn draw-entity [entity [cam-x cam-y]]
   (let [[x y] (:pos entity)
@@ -276,7 +315,9 @@
   (doseq [[_ ship] (:ships state)]
     (doseq [smoke (:smoke ship)]
       (draw-entity smoke cam-pos))
-    (draw-entity ship cam-pos)))
+    (draw-entity ship cam-pos))
+  (doseq [meteor (:death-animations state)]
+    (draw-entity meteor cam-pos)))
 
 (q/defsketch nanoscopic
   :host "game-canvas"
@@ -293,7 +334,8 @@
    [:canvas#game-canvas]])
 
 (defn page
-  []
+  [chsk-send!]
+  (swap! animation-state assoc :channel-send-fn chsk-send!)
   (reagent/create-class
    {:reagent-render game-container
     :component-did-mount nanoscopic
