@@ -2,6 +2,7 @@
   (:require [reagent.session :as session]
             [reagent.core :as reagent]
             [clojure.set :as set]
+            [clojure.string :refer [upper-case]]
             [quil.core :as q :include-macros true]
             [quil.middleware :as m]))
 
@@ -333,7 +334,10 @@
    [:h1.game-title "2016: A Casino Odyssey"]
    [:canvas#game-canvas]
    (when-let [winner (session/get-in [:game-state :game :last-man-standing])]
-     [:h2.game-winner (str winner " gagne!!!")])])
+     [:div.blink.game-winner
+      [:div.game-winner-logo]
+      [:p.game-winner-text (upper-case (str winner " gagne"))]
+      [:div.game-winner-logo]])])
 
 (defn page
   [chsk-send!]

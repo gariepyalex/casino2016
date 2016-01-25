@@ -3,6 +3,7 @@
                  [org.clojure/clojurescript "1.7.170"]
                  [org.clojure/core.async "0.2.374"]
                  [ring "1.4.0"]
+                 [environ "1.0.1"]
                  [ring/ring-defaults "0.1.5"]
                  [ring-transit "0.1.4"]
                  [compojure "1.4.0"]
@@ -52,5 +53,9 @@
                    :source-paths ["dev" "src/cljs"]
 
                    :repl-options {:init-ns user
-                                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}})
+                                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}
+             :production {:env {:production true}}
+             :uberjar {:prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+                       :aot casino2016.core}}
+  :uberjar-name "casino2016-standalone.jar")
 

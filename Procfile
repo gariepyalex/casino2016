@@ -1,0 +1,1 @@
+web: java $JVM_OPTS -cp target/casino2016-standalone.jar clojure.main -m casino2016.core

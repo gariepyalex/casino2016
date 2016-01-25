@@ -1,14 +1,12 @@
+@import url(https://fonts.googleapis.com/css?family=Monofett);
+
 body {
+    margin: 0;
     font-size: 1.3em;
-    background-color: #263238;
 }
 
 #app {
     background-color: white;
-}
-
-h1 {
-    color: blue;
 }
 
 .error {
@@ -87,18 +85,56 @@ h1 {
 }
 
 .game-page {
+    padding-top: 10px;
     background-color: #263238;
+    width: 100%;
+    height: calc(100vh - 10px);
+    background-image: url('/img/game-background.jpg');
+    background-size: cover;
 }
 
 .game-title {
+    margin-top: 0;
     text-align: center;
-    color: white;
-    font: bold italic 60px sans-sherif;
-    text-shadow: 4px 4px 0 black;
+    font-family: Monofett;
+    font-weight: 500;
+    font-size: 70px;
+    color: yellow;
 }
 
 #game-canvas {
     display: block;
     margin: 0 auto;
     border: white solid 5px;
+}
+
+@keyframes blinker {  
+  50% { opacity: 0.0; }
+}
+
+.blink {
+    animation: blinker 1s ease infinite;
+}
+
+.game-winner {
+    display: flex;
+    justify-content: space-around;
+    width: 50%;
+    margin: 20px auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.game-winner-text {
+    color: white;
+    text-align: center;
+    font-size: 30px;
+    text-shadow: 1px 1px 2px black, 0 0 1em yellow, 0 0 0.2em red;
+    margin: 0;
+}
+
+.game-winner-logo {
+    background-image: url('/img/win-logo.svg');
+    background-size: 40px 40px;
+    width: 40px;
+    height: 40px;
 }

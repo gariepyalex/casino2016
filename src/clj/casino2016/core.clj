@@ -1,6 +1,8 @@
 (ns casino2016.core
-  (:require [clojure.core.async :refer [close!]]
-   [org.httpkit.server :as httpkit]
+  (:gen-class)
+  (:require [environ.core :refer [env]]
+            [clojure.core.async :refer [close!]]
+            [org.httpkit.server :as httpkit]
             [casino2016.handler :as handler]))
 
 (def PORT 8000)
@@ -23,4 +25,4 @@
 
 (defn -main
   [& port]
-  (start-server (or port PORT)))
+  (start-server (Integer. (or port (env :port) PORT))))
