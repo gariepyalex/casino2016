@@ -56,6 +56,6 @@
                                   :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}
              :production {:env {:production true}}
              :uberjar {:prep-tasks ["compile" ["cljsbuild" "once" "min"]]
-                       :aot casino2016.core}}
+                       :aot [casino2016.core]}}
   :uberjar-name "casino2016-standalone.jar")
 
