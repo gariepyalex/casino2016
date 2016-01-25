@@ -333,7 +333,7 @@
   [:div.game-page
    [:h1.game-title "2016: A Casino Odyssey"]
    (when (session/get-in [:game-state :game :in-preparation])
-     [:div#qrcode [:p "Join the game now!"]])
+     [:div.qrcode [:h3 "Join the game now!"]])
    [:canvas#game-canvas]
    (when-let [winner (session/get-in [:game-state :game :last-man-standing])]
      [:div.blink.game-winner

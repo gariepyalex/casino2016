@@ -11,7 +11,11 @@
 
 (defn new-game
   [max-player]
-  (assoc {} :players {} :max-player max-player :number-of-players 0))
+  (assoc {} :players {} :max-player max-player :number-of-players 0 :in-preparation true))
+
+(defn started-game
+  [new-game]
+  (assoc new-game :in-preparation false))
 
 (defn add-player [game player]
   (let [max-player (:max-player game)]

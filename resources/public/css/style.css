@@ -91,10 +91,12 @@ body {
     height: calc(100vh - 10px);
     background-image: url('/img/game-background.jpg');
     background-size: cover;
+    overflow: hidden;
 }
 
 .game-title {
     margin-top: 0;
+    margin-bottom: 10px;
     text-align: center;
     font-family: Monofett;
     font-weight: 500;
@@ -137,4 +139,25 @@ body {
     background-size: 40px 40px;
     width: 40px;
     height: 40px;
+}
+
+.qrcode {
+    width: 500px;
+    height: 540px;
+    background-color: white;
+    background-image: url('/img/code.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    padding: 20px;
+    margin: auto;
+    margin-bottom: 100%;
+}
+
+.qrcode h3 {
+    font-family: Monofett;
+    font-weight: 500;
+    font-size: 50px;
+    margin-top: 0;
+    text-align: center;
 }
