@@ -71,3 +71,18 @@
 (defn player-name->session
   [player-name]
   (get (set/map-invert @sessions) player-name))
+
+
+(defn random-choice
+  []
+  (rand-nth [:left :right]))
+
+(defn play-turn
+  []
+  (dosync
+   (commute state update :game game/play-turn-game (random-choice))))
+
+(defn kick-loosers
+  []
+  (dosync
+   (commute state update :game game/kick-losers)))

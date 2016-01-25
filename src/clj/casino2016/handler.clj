@@ -115,9 +115,17 @@
     (send-kick-message session))
   (admin/admin-kick-player player-name))
 
+(defmethod event-handler :casino2016.admin/play-turn
+  [_]
+  (admin/play-turn))
+
 (defmethod event-handler :casino2016.admin/choose-move
   [{user-id :uid {:keys [player-name choice]} :?data}]
   (admin/admin-choose-move player-name choice))
+
+(defmethod event-handler :casino2016.game/kick-loosers
+  [_]
+  (admin/kick-loosers))
 
 (defmethod event-handler :default
   [event]

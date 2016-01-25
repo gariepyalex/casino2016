@@ -61,8 +61,9 @@
     [:div
      [:h3 "Actions"]
      [:div.admin-actions
-      [:button "Start game"]
-      [:button {:on-click #(chsk-send! [::reset])} "Reset"]]]))
+      [:button {:on-click #(chsk-send! [:casino2016.game/kick-loosers])} "Kick loosers"]
+      [:button {:on-click #(chsk-send! [::reset])} "Reset"]
+      [:button {:on-click #(chsk-send! [::play-turn])} "NEXT TURN"]]]))
 
 (defn admin-view
   [chsk-send!]
