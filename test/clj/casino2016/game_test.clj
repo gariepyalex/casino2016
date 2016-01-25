@@ -116,7 +116,10 @@
     (testing "When play turn then losers has lost"
       (is (= number-of-losers (count
                                (filter #(:lost %)
-                                       (vals (:players played-turn-game)))))))))
+                                       (vals (:players played-turn-game)))))))
+    (testing "When play turn last good and last bad move are in in game map"
+      (is (= wrong-choice (:wrong-choice played-turn-game)))
+      (is (= right-choice (:good-choice played-turn-game))))))
 
 (deftest kick-losers-test
   (let [a-cleaned-game (-> a-game
@@ -126,12 +129,14 @@
     (testing "Given losers when kick losers then they are not in the game anymore"
       (is (empty?
            (filter :lost
-                   (vals (:players a-cleaned-game))))))))
+                   (vals (:players a-cleaned-game))))))
+    (testing "When kick loosers last good and wrong choices are removed from game map"
+      (is (nil? (:wrong-choice a-cleaned-game)))
+      (is (nil? (:good-choice a-cleaned-game))))))
 
 (deftest player-choose-test
   (let [a-choice :left]
     (testing "Given a valid game when a player choose a choice then changee player choice"
-      
       (let [a-player-name "bibi"
             updated-game (player-choose a-game a-player-name a-choice)]
       (is (= a-choice (get-in updated-game

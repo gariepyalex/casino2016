@@ -28,6 +28,10 @@
     (update player :tickets + ticket-prize)
     (assoc player :lost true)))
 
+(defn- wrong-choice
+  [good-choice]
+  (get {:left :right, :right :left} good-choice))
+
 (defn play-turn-game [game choice]
   (let [losers (filter (fn [[k v]] (not= choice (:choice v))) (:players game))
         winners (filter (fn [[k v]] (= choice (:choice v))) (:players game))
@@ -43,13 +47,18 @@
                                     [name-id (play-turn-player player choice ticket-prize)])]
       (-> game
           (update :players #(into {} (map player-turn-with-choice %)))
-          (assoc :free-tickets free-tickets)))))
+          (assoc :free-tickets free-tickets)
+          (assoc :good-choice choice)
+          (assoc :wrong-choice (wrong-choice choice))))))
 
 (defn kick-losers [game]
-  (update game :players (fn [players]
-                          (->> players
-                               (filter (fn [[k v]] (not (:lost v))))
-                               (into {})))))
+  (-> game
+      (update :players (fn [players]
+                         (->> players
+                              (filter (fn [[k v]] (not (:lost v))))
+                              (into {}))))
+      (dissoc :wrong-choice)
+      (dissoc :good-choice)))
 
 (defn kick-player [game player-name]
   (if (contains? (:players game) player-name)
