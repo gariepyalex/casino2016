@@ -49,7 +49,8 @@
           (update :players #(into {} (map player-turn-with-choice %)))
           (assoc :free-tickets free-tickets)
           (assoc :good-choice choice)
-          (assoc :wrong-choice (wrong-choice choice))))))
+          (assoc :wrong-choice (wrong-choice choice))
+          (assoc :animation-state true)))))
 
 (defn- assoc-last-man-standing
   [game]
@@ -65,6 +66,7 @@
                               (into {}))))
       (dissoc :wrong-choice)
       (dissoc :good-choice)
+      (dissoc :animation-state)
       (#(assoc % :number-of-players (count (:players %))))
       (assoc-last-man-standing)))
 
@@ -84,7 +86,9 @@
 (defn player-choose [game player-name choice]
   (if (and (contains? (:players game) player-name)
            (valid-choice? choice))
-    (assoc-in game [:players player-name :choice] choice)
+    (if (get game :animation-state)
+      game
+      (assoc-in game [:players player-name :choice] choice))
     game))
 
 (defn player-bet [game player-name tickets]

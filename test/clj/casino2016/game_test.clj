@@ -119,7 +119,9 @@
                                        (vals (:players played-turn-game)))))))
     (testing "When play turn last good and last bad move are in in game map"
       (is (= wrong-choice (:wrong-choice played-turn-game)))
-      (is (= right-choice (:good-choice played-turn-game))))))
+      (is (= right-choice (:good-choice played-turn-game))))
+    (testing "When play turn then animation-state is true"
+      (is (get played-turn-game :animation-state)))))
 
 (deftest kick-losers-test
   (let [a-cleaned-game (-> a-game
@@ -145,7 +147,9 @@
                                           (play-turn-game :left)
                                           (kick-losers))]
         (is (nil? (:last-man-standing game)))
-        (is (= "toto" (:last-man-standing game-with-only-one-player)))))))
+        (is (= "toto" (:last-man-standing game-with-only-one-player)))))
+    (testing "When kick-losers then animation-state is false"
+      (is (not (get a-cleaned-game :animation-state))))))
 
 (deftest player-choose-test
   (let [a-choice :left]
@@ -158,7 +162,11 @@
       (let [invalid-name "kawabounga"
             updated-game (player-choose a-game invalid-name a-choice)]
         (is (empty? (filter #(= invalid-name %)
-                (keys (get updated-game :players))))))))))
+                            (keys (get updated-game :players)))))))
+    (testing "Given a game in animation mode when player-choose then nothing happens"
+      (let [updated-game (play-turn-game a-game :left)
+            unchanged-game (player-choose updated-game "bibi" :left)]
+        (is (= updated-game unchanged-game)))))))
 
 
 (deftest player-bet-test
