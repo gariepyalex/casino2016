@@ -125,14 +125,27 @@
   (let [a-cleaned-game (-> a-game
                            (play-turn-game :right)
                            (kick-losers))
-        losers (filter #(= :right (:choice %)) (vals (:players (play-turn-game a-game :right))))]
+        losers (filter #(= :left (:choice %)) (vals (:players (play-turn-game a-game :right))))]
     (testing "Given losers when kick losers then they are not in the game anymore"
       (is (empty?
            (filter :lost
                    (vals (:players a-cleaned-game))))))
     (testing "When kick loosers last good and wrong choices are removed from game map"
       (is (nil? (:wrong-choice a-cleaned-game)))
-      (is (nil? (:good-choice a-cleaned-game))))))
+      (is (nil? (:good-choice a-cleaned-game))))
+    (testing "When kick players the number of players is adjusted"
+      (is (= (:number-of-players a-cleaned-game) (- (:number-of-players a-game) (count losers)))))
+    (testing "When kick players if the is only one player left then last man standing is set"
+      (let [game (new-game 2)
+            game-with-only-one-player (-> game
+                                          (add-player (-> (player "toto")
+                                                          (choose :left)))
+                                          (add-player (-> (player "tata")
+                                                          (choose :right)))
+                                          (play-turn-game :left)
+                                          (kick-losers))]
+        (is (nil? (:last-man-standing game)))
+        (is (= "toto" (:last-man-standing game-with-only-one-player)))))))
 
 (deftest player-choose-test
   (let [a-choice :left]

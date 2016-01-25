@@ -51,6 +51,12 @@
           (assoc :good-choice choice)
           (assoc :wrong-choice (wrong-choice choice))))))
 
+(defn- assoc-last-man-standing
+  [game]
+  (if (= 1 (:number-of-players game))
+    (assoc game :last-man-standing (-> (:players game) keys first))
+    game))
+
 (defn kick-losers [game]
   (-> game
       (update :players (fn [players]
@@ -58,7 +64,9 @@
                               (filter (fn [[k v]] (not (:lost v))))
                               (into {}))))
       (dissoc :wrong-choice)
-      (dissoc :good-choice)))
+      (dissoc :good-choice)
+      (#(assoc % :number-of-players (count (:players %))))
+      (assoc-last-man-standing)))
 
 (defn kick-player [game player-name]
   (if (contains? (:players game) player-name)
