@@ -332,7 +332,7 @@
   []
   [:div.game-page
    [:h1.game-title "2016: A Casino Odyssey"]
-   (when (get-in @state/state [:game :in-preparation])
+   (when (true? (get-in @state/state [:game :in-preparation]))
      [:div.qrcode [:h3 "Join the game now!"]])
    [:canvas#game-canvas]
    (when-let [winner (get-in @state/state [:game :last-man-standing])]

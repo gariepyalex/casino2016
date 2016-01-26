@@ -122,6 +122,9 @@
 (defmethod event-handler :casino2016.admin/play-turn
   [_]
   (admin/play-turn))
+(defmethod event-handler :casino2016.admin/play-turn
+  [_]
+  (admin/play-turn))
 
 (defmethod event-handler :casino2016.admin/choose-move
   [{user-id :uid {:keys [player-name choice]} :?data}]
