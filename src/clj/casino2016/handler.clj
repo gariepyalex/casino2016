@@ -24,16 +24,16 @@
 
 ;;======================================================
 ;; Ring/Compojure route
-(defn cookie-as-user-id
+(defn uuid-as-user-id
   [request]
-  (get-in request [:cookies "ring-session" :value]))
+  (str (java.util.UUID/randomUUID)))
 
 (let [{:keys [ch-recv
               send-fn
               ajax-post-fn
               ajax-get-or-ws-handshake-fn
               connected-uids]}
-      (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn cookie-as-user-id})]
+      (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn uuid-as-user-id})]
   (defonce ring-ajax-post                ajax-post-fn)
   (defonce ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
   (defonce ch-chsk                       ch-recv)
