@@ -7,11 +7,12 @@
             [casino2016.game-state :as state]))
 
 (def animation-state (atom {}))
-(def canvas-width 800)
+(def canvas-width 1000)
 (def canvas-height 400)
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
-(def ship-pos-x (map #(- (* 32 %) 100) (range)))
-(def ship-move-offset 250)
+(def ship-pos-x (interleave (map #(* 25 %) (map inc (range)))
+                            (map #(* -25 %) (range))))
+(def ship-move-offset 300)
 
 (defn on-screen? [x y]
   (let [margin 100]
@@ -46,7 +47,7 @@
   (q/fill 30 100 30)
   (q/ellipse 8 0 8 8)
   (q/fill 255 255 255)
-  (q/text-size 15)
+  (q/text-size 20)
   (q/text (:name ship) -30 -10))
 
 (defn create-ship
@@ -57,6 +58,7 @@
      :base-pos base-pos
      :color (into [] (take 3 (repeatedly #(+ 100 (rand-int 156)))))
      :pos base-pos
+     :pos-anim base-pos
      :dir (- (/ q/PI 2))
      :dir-change 0.0
      :speed 0.1
@@ -227,11 +229,15 @@
 
 (defn move-ship-left
   [ship]
-  (assoc ship :pos (update (:base-pos ship) 0 - ship-move-offset)))
+  (assoc ship :pos-anim (update (:base-pos ship) 0 - ship-move-offset)))
 
 (defn move-ship-right
   [ship]
-  (assoc ship :pos (update (:base-pos ship) 0 + ship-move-offset)))
+  (assoc ship :pos-anim (update (:base-pos ship) 0 + ship-move-offset)))
+
+(defn move-ship-center
+  [ship]
+  (assoc ship :pos-anim (:base-pos ship)))
 
 (defn move-ships-to-player-choice
   [ships players]
@@ -239,7 +245,21 @@
             (condp = (get-in players [player-name :choice])
               :left (update ships player-name move-ship-left)
               :right (update ships player-name move-ship-right)
-              ships))
+              (update ships player-name move-ship-center)))
+          ships
+          (keys ships)))
+
+(defn animate-ships-pos
+  [ships]
+  (reduce (fn [ships player-name]
+            (let [ship          (get ships player-name)
+                  [old-x old-y] (:pos ship)
+                  [to-x to-y]   (:pos-anim ship)
+                  diff-x        (- to-x old-x)
+                  diff-y        (- to-y old-y)
+                  new-pos       [(+ old-x (* 0.1 diff-x))
+                                 (+ old-y (* 0.1 diff-y))]]
+            (assoc-in ships [player-name :pos] new-pos)))
           ships
           (keys ships)))
 
@@ -285,6 +305,7 @@
         (update :ships add-new-players players)
         (update :ships remove-players-not-in-game-anymore players)
         (update :ships move-ships-to-player-choice players)
+        (update :ships animate-ships-pos)
         (update :ships wiggle-ships)
         (update :ships update-smoke-all-ships)
         (update-in [:stars] move-objects)
