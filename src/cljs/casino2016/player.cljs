@@ -3,7 +3,8 @@
             [reagent.cookies :as cookies]
             [reagent.core :as r]
             [reagent.core :as reagent]
-            [reagent.session :as session]))
+            [reagent.session :as session]
+            [casino2016.game-state :as state]))
 
 (defn- user-in-game?
   []
@@ -32,18 +33,17 @@
 (defn- arrows-properties
   [player-name direction chsk-send!]
   (let [default {:on-click #(choose-move! chsk-send! direction)}]
-    (if (= direction (session/get-in [:game-state :game :players player-name :choice]))
+    (if (= direction (get-in @state/state [:game :players player-name :choice]))
       (assoc default :class "player-arrow-selected")
       default)))
 
 (defn playing-arrows
   [chsk-send!]
   (fn []
-    (let [state (session/get :game-state)
-          name  (session/get :username)]
+    (let [name (session/get :username)]
       [:div
        [:h2 name]
-       (if (contains? (get-in state [:game :players]) name)
+       (if (contains? (get-in @state/state [:game :players]) name)
          [:div
           [:h3 "Choisir une direction"]
           [:div.player-container

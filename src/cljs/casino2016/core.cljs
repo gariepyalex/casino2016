@@ -11,7 +11,8 @@
             [casino2016.home :as home]
             [casino2016.admin :as admin]
             [casino2016.game :as game]
-            [casino2016.player :as player])
+            [casino2016.player :as player]
+            [casino2016.game-state :as state])
   (:import goog.History))
 
 (enable-console-print!)
@@ -62,9 +63,10 @@
   (fn [event] (:id event)))
 
 (defmethod event-handler :game/state
-  [{state :?data}]
-  (println state)
-  (session/put! :game-state state))
+  [{new-state :?data}]
+  (println new-state)
+  (reset! state/state new-state)
+  (println @state/state))
 
 (defmethod event-handler :casino2016.admin/kicked
   [_]
@@ -82,7 +84,6 @@
   []
   (secretary/set-config! :prefix "#")
   (hook-browser-navigation!)
-  (session/put! :game-state {})
   (mount-root))
 
 (defn on-js-reload

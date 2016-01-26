@@ -1,10 +1,10 @@
 (ns casino2016.game
-  (:require [reagent.session :as session]
-            [reagent.core :as reagent]
+  (:require [reagent.core :as reagent]
             [clojure.set :as set]
             [clojure.string :refer [upper-case]]
             [quil.core :as q :include-macros true]
-            [quil.middleware :as m]))
+            [quil.middleware :as m]
+            [casino2016.game-state :as state]))
 
 (def animation-state (atom {}))
 (def canvas-width 800)
@@ -252,7 +252,7 @@
 
 (defn create-animations
   [animations]
-  (let [wrong-choice (session/get-in [:game-state :game :wrong-choice])]
+  (let [wrong-choice (get-in @state/state [:game :wrong-choice])]
     (if (and (empty? animations) (not (nil? wrong-choice)))
       (create-death-meteor wrong-choice)
       animations)))
@@ -280,7 +280,7 @@
        (into [])))
 
 (defn update-state [state]
-  (let [players (session/get-in [:game-state :game :players])]
+  (let [players (get-in @state/state [:game :players])]
     (-> state
         (update :ships add-new-players players)
         (update :ships remove-players-not-in-game-anymore players)
@@ -332,7 +332,7 @@
   []
   [:div.game-page
    [:h1.game-title "2016: A Casino Odyssey"]
-   (when (session/get-in [:game-state :game :in-preparation])
+   (when (get-in @state/state [:game :in-preparation])
      [:div.qrcode
       [:h3 "Join the game now!"]
       [:h4 "Instructions"]
@@ -341,7 +341,7 @@
        [:li "Paie tes jetons à la table"]
        [:li "Essaie de survivre!"]]])
    [:canvas#game-canvas]
-   (when-let [winner (session/get-in [:game-state :game :last-man-standing])]
+   (when-let [winner (get-in @state/state [:game :last-man-standing])]
      [:div.blink.game-winner
       [:div.game-winner-logo]
       [:p.game-winner-text (upper-case (str winner " gagne"))]

@@ -3,7 +3,8 @@
             [reagent.core :as r]
             [reagent.session :as session]
             [ajax.core :refer [POST]]
-            [clojure.string :refer [blank?]]))
+            [clojure.string :refer [blank?]]
+            [casino2016.game-state :as state]))
 
 (defn add-player!
   [chsk-send! username]
@@ -23,12 +24,14 @@
        [:input {:placeholder "Nom du joueur"
                 :on-change #(reset! name (-> % .-target .-value))
                 :value @name}]
-       [:button {:on-click #(do (add-player! chsk-send! @name) (reset! name nil))} "Ajouter"]])))
+       [:button {:on-click #(do (add-player! chsk-send! @name)
+                                (reset! name nil))}
+        "Ajouter"]])))
 
 (defn players-in-game-view
   [chsk-send!]
   (fn []
-    (let [{:keys [number-of-players max-player players]} (session/get-in [:game-state :game])]
+    (let [{:keys [number-of-players max-player players]} (:game @state/state)]
       [:div
        [:h3 (str "Joueurs (" number-of-players "/" max-player ")")]
        [:ul (for [name (keys players)]
@@ -43,7 +46,7 @@
   (fn []
     [:div
      [:h3 "En attente"]
-     [:ul (for [name (session/get-in [:game-state :pending-players])]
+     [:ul (for [name (:pending-players @state/state)]
             (into [:li.admin-player-entry]
                   [[:p.admin-pending-player name]
                    [:button {:on-click #(chsk-send! [::accept-player name])} "accept"]]))]]))
