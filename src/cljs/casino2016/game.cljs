@@ -359,7 +359,9 @@
       [:h3 "Join the game now!"]
       [:h4 "Instructions"]
       [:ol
-       [:li "Scanne le QR code"]
+       [:li "Scanne le QR code ou visite le "
+        [:br]
+        [:a {:href "http://q-r.to/babVGD"} "http://q-r.to/babVGD"]]
        [:li "Paie tes jetons à la table"]
        [:li "Essaie de survivre!"]]])
    [:canvas#game-canvas]

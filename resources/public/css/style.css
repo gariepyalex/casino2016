@@ -143,7 +143,7 @@ body {
 
 .qrcode {
     width: 500px;
-    height: 540px;
+    height: 560px;
     background-color: white;
     background-image: url('/img/code.png');
     background-size: 400px 400px;
