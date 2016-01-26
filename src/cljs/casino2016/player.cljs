@@ -49,9 +49,13 @@
           [:div.player-container
            [:div.player-arrow.player-arrow-left (arrows-properties name :left chsk-send!)]
            [:div.player-arrow.player-arrow-right (arrows-properties name :right chsk-send!)]]]
-         [:div
-          [:h3.error-message "En attente d'approbation"]
-          [:p "Pour rejoindre la partie, paie tes jetons à la table!"]])])))
+         (if (contains? (get-in @state/state [:game :losers]) name)
+           [:div
+            [:h3.error-message "Vous avez perdu"]
+            [:img.lost-image {:src "/img/loser.gif"}]]
+           [:div
+            [:h3.error-message "En attente d'approbation"]
+            [:p "Pour rejoindre la partie, paie tes jetons à la table!"]]))])))
 
 (defn page
   [chsk-send!]
