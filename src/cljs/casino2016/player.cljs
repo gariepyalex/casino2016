@@ -1,5 +1,6 @@
 (ns casino2016.player
   (:require [clojure.string :refer [blank?]]
+            [taoensso.sente  :as sente]
             [reagent.cookies :as cookies]
             [reagent.core :as r]
             [reagent.core :as reagent]
@@ -17,8 +18,10 @@
 (defn sign-up-game!
   [chsk-send! username]
   (when (not (blank? username))
-    (chsk-send! [::sign-up username])
-    (session/put! :username username)))
+    (chsk-send! [::sign-up username]
+                3000 (fn [signed-up?]
+                       (when (and (sente/cb-success? signed-up?) (true? signed-up?))
+                         (session/put! :username username))))))
 
 (defn form-sign-up-for-game
   [chsk-send!]

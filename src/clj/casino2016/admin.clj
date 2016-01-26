@@ -33,7 +33,7 @@
 (defn admin-add-player
   [player-name]
   (dosync
-   (when-not (some #{player-name} (:taken-names @state))
+   (when-not (contains? (:taken-names @state) player-name)
      (do (commute state update :taken-names conj player-name)
          (add-player-to-game player-name)))))
 
@@ -58,7 +58,7 @@
 (defn sign-up
   [id player-name]
   (dosync
-   (when-not (some #{player-name} (:taken-names @state))
+   (when-not (contains? (:taken-names @state) player-name)
      (do (commute state update :taken-names conj player-name)
          (commute state update :pending-players conj player-name)
          (when (contains? @sessions id)
@@ -77,6 +77,9 @@
   [player-name]
   (get (set/map-invert @sessions) player-name))
 
+(defn has-session?
+  [user-id]
+  (contains? @sessions user-id))
 
 (defn random-choice
   []
