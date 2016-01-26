@@ -7,7 +7,7 @@
             [casino2016.game-state :as state]))
 
 (def animation-state (atom {}))
-(def canvas-width 1000)
+(def canvas-width 1024)
 (def canvas-height 400)
 (def cam-pos [(- (/ canvas-width 2)) (- (* 5 (/ canvas-height 6)))])
 (def ship-pos-x (interleave (map #(* 25 %) (map inc (range)))

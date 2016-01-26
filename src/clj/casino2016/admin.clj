@@ -2,7 +2,7 @@
   (:require [clojure.set :as set]
             [casino2016.game :as game]))
 
-(def max-players 8)
+(def max-players 16)
 
 (defn new-game
   []
