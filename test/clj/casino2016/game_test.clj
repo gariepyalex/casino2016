@@ -43,6 +43,8 @@
 (deftest new-game-initialization
   (testing "A new game has no players"
     (is (empty? (:players a-new-game)))
+    (is (contains? a-new-game :losers))
+    (is (empty? (:losers a-new-game)))
     (is (zero? (:number-of-players a-new-game)))))
 
 (deftest add-player-test
@@ -149,7 +151,12 @@
         (is (nil? (:last-man-standing game)))
         (is (= "toto" (:last-man-standing game-with-only-one-player)))))
     (testing "When kick-losers then animation-state is false"
-      (is (not (get a-cleaned-game :animation-state))))))
+      (is (not (get a-cleaned-game :animation-state))))
+    (testing "All players are set to no-choice after kick-losers"
+      (is (every? true? (map (fn [[k v]] (= :nochoice (:choice v))) (:players a-cleaned-game)))))
+    (testing "When kicking a player should add the player to losers"
+      (is (contains? (:losers a-cleaned-game) "bob"))
+      (is (contains? (:losers a-cleaned-game) "14x222")))))
 
 (deftest player-choose-test
   (let [a-choice :left]
@@ -186,7 +193,7 @@
   (testing "Given a game when kick a player then player is not in game anymore"
     (let [a-player-name "bibi"
           updated-game (kick-player a-game a-player-name)]
-      (is (not (contains? updated-game a-player-name)))))
+      (is (not (contains? (:players updated-game) a-player-name)))))
   (testing "Given a game when kick a player then the number of players is decremented"
     (let [a-player-name "bibi"
           old-number-of-players (:number-of-players a-game)
