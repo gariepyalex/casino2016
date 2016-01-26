@@ -115,6 +115,10 @@
     (send-kick-message session))
   (admin/admin-kick-player player-name))
 
+(defmethod event-handler :casino2016.admin/start-game
+  [{ring-request :ring-req}]
+  (admin/start-game))
+
 (defmethod event-handler :casino2016.admin/play-turn
   [_]
   (admin/play-turn))

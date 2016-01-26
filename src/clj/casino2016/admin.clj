@@ -25,6 +25,10 @@
   []
   (dosync (ref-set state (new-game))))
 
+(defn start-game
+  []
+  (commute state update :game game/started-game))
+
 (defn admin-add-player
   [player-name]
   (dosync
