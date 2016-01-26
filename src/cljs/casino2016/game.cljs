@@ -322,6 +322,7 @@
 
 (q/defsketch nanoscopic
   :host "game-canvas"
+  :features [:no-start]
   :size [canvas-width canvas-height]
   :setup setup
   :update update-state
