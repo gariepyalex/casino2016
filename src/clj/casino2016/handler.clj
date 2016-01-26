@@ -91,8 +91,9 @@
 (defmethod event-handler :casino2016.player/sign-up
   [{user-id :uid username :?data reply-fn :?reply-fn}]
   (admin/sign-up user-id username)
-  (when (admin/has-session? user-id)
-    (reply-fn true)))
+  (if (admin/has-session? user-id)
+    (reply-fn true)
+    (reply-fn false)))
 
 (defmethod event-handler :casino2016.player/choose-move
   [{user-id :uid choice :?data}]

@@ -16,21 +16,25 @@
   (chsk-send! [::choose-move move]))
 
 (defn sign-up-game!
-  [chsk-send! username]
+  [chsk-send! username error-atom]
   (when (not (blank? username))
     (chsk-send! [::sign-up username]
                 3000 (fn [signed-up?]
-                       (when (and (sente/cb-success? signed-up?) (true? signed-up?))
-                         (session/put! :username username))))))
+                       (if (and (sente/cb-success? signed-up?) (true? signed-up?))
+                         (session/put! :username username)
+                           (reset! error-atom true))))))
 
 (defn form-sign-up-for-game
   [chsk-send!]
-  (let [name (r/atom nil)]
+  (let [name  (r/atom nil)
+        error (r/atom false)]
     (fn []
       [:div.sign-up-form
+       (when @error
+         [:h3.error-message "Choisissez un autre nom"])
        [:input.sign-up-name {:placeholder "Votre nom"
                              :on-change #(reset! name (-> % .-target .-value))}]
-       [:button.sign-up-button {:on-click #(sign-up-game! chsk-send! @name)}
+       [:button.sign-up-button {:on-click #(sign-up-game! chsk-send! @name error)}
         "Jouer"]])))
 
 (defn- arrows-properties
