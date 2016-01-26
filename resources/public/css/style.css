@@ -146,7 +146,7 @@ body {
     height: 540px;
     background-color: white;
     background-image: url('/img/code.png');
-    background-size: contain;
+    background-size: 400px 400px;
     background-repeat: no-repeat;
     background-position: bottom center;
     padding: 20px;
@@ -159,5 +159,11 @@ body {
     font-weight: 500;
     font-size: 50px;
     margin-top: 0;
+    margin-bottom: 10px;
     text-align: center;
+}
+
+.qrcode h4 {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }

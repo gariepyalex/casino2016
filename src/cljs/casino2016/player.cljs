@@ -50,7 +50,8 @@
            [:div.player-arrow.player-arrow-left (arrows-properties name :left chsk-send!)]
            [:div.player-arrow.player-arrow-right (arrows-properties name :right chsk-send!)]]]
          [:div
-          [:h2 "En attente d'approbation"]])])))
+          [:h2 "En attente d'approbation"]
+          [:p "Pour rejoindre la partie, paie tes jetons à la table!"]])])))
 
 (defn page
   [chsk-send!]
