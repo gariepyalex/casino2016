@@ -11,7 +11,12 @@
 
 (defn new-game
   [max-player]
-  (assoc {} :players {} :max-player max-player :number-of-players 0 :in-preparation true))
+  (assoc {}
+         :players {}
+         :max-player max-player
+         :number-of-players 0
+         :in-preparation true
+         :losers #{}))
 
 (defn started-game
   [new-game]
@@ -64,8 +69,14 @@
 
 (defn kick-losers [game]
   (-> game
+      (update :losers #(->> game
+                            (:players)
+                            (filter (fn [[k v]] (:lost v)))
+                            (map first)
+                            (apply conj %)))
       (update :players (fn [players]
                          (->> players
+                              (map (fn [[k v]] [k (assoc v :choice :nochoice)]))
                               (filter (fn [[k v]] (not (:lost v))))
                               (into {}))))
       (dissoc :wrong-choice)

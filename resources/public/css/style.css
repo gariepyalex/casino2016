@@ -152,6 +152,7 @@ body {
     padding: 20px;
     margin: auto;
     margin-bottom: 100%;
+    font-family: arial, sans-ms;
 }
 
 .qrcode h3 {
@@ -166,4 +167,8 @@ body {
 .qrcode h4 {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+.error-message {
+    color:red;
 }
