@@ -44,25 +44,44 @@
       (assoc default :class "player-arrow-selected")
       default)))
 
+(defn- playing?
+  [name]
+  (contains? (get-in @state/state [:game :players]) name))
+
+(defn- won?
+  [name]
+  (let [winner-name (get-in @state/state [:game :last-man-standing])]
+    (= name winner-name)))
+
+(defn- lost?
+  [name]
+  (contains? (get-in @state/state [:game :losers]) name))
+
 (defn playing-arrows
   [chsk-send!]
   (fn []
     (let [name (session/get :username)]
       [:div
        [:h2 name]
-       (if (contains? (get-in @state/state [:game :players]) name)
+       (cond
+         (won? name)
+         [:div
+          [:h3.success-message "Vous avez gagné"]
+          [:img.lost-image {:src "/img/win.gif"}]]
+         (playing? name)
          [:div
           [:h3 "Choisir une direction"]
           [:div.player-container
            [:div.player-arrow.player-arrow-left (arrows-properties name :left chsk-send!)]
            [:div.player-arrow.player-arrow-right (arrows-properties name :right chsk-send!)]]]
-         (if (contains? (get-in @state/state [:game :losers]) name)
-           [:div
-            [:h3.error-message "Vous avez perdu"]
-            [:img.lost-image {:src "/img/loser.gif"}]]
-           [:div
-            [:h3.error-message "En attente d'approbation"]
-            [:p "Pour rejoindre la partie, paie tes jetons à la table!"]]))])))
+         (lost? name)
+         [:div
+          [:h3.error-message "Vous avez perdu"]
+          [:img.lost-image {:src "/img/loser.gif"}]]
+         :else
+         [:div
+          [:h3.error-message "En attente d'approbation"]
+          [:p "Pour rejoindre la partie, paie tes jetons à la table!"]])])))
 
 (defn page
   [chsk-send!]
