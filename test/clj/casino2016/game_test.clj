@@ -91,13 +91,19 @@
         a-loser (-> (player "a-player")
                     (give-n-tickets n-tickets)
                     (choose wrong-choice)
-                    (play-turn-player right-choice ticket-prize))]
+                    (play-turn-player right-choice ticket-prize))
+        a-player-with-nochoice (-> (player "a-player")
+                                   (give-n-tickets n-tickets)
+                                   (play-turn-player right-choice ticket-prize))]
     (testing "Given a winner when play turn then ticket prize is given to winner"
       (is (= (+ n-tickets ticket-prize) (:tickets a-winner))))
     (testing "Given a loser when play turn the loser has still n-tickets"
       (is (= n-tickets (:tickets a-loser))))
     (testing "Given a loser when play turn then loser has lost"
-      (is (:lost a-loser)))))
+      (is (:lost a-loser)))
+    (testing "Given a player with no choice when play turn then it chooses a random move"
+      (let [choice (:choice a-player-with-nochoice)]
+        (is (or (= :left choice) (= :right choice)))))))
 
 (deftest play-turn-game-test
   (let [wrong-choice :right

@@ -33,9 +33,11 @@
             (update :number-of-players inc))))))
 
 (defn play-turn-player [player choice ticket-prize]
-  (if (= choice (:choice player))
-    (update player :tickets + ticket-prize)
-    (assoc player :lost true)))
+  (if (= :nochoice (:choice player))
+    (recur (assoc player :choice (rand-nth [:left :right])) choice ticket-prize)
+    (if (= choice (:choice player))
+      (update player :tickets + ticket-prize)
+      (assoc player :lost true))))
 
 (defn- wrong-choice
   [good-choice]
