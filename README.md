@@ -1,5 +1,7 @@
 # casino2016
 
+[![Floobits Status](https://floobits.com/gariepyalex/casino2016.svg)](https://floobits.com/gariepyalex/casino2016/redirect)
+
 ## Development Mode
 
 ### Run application:
@@ -17,7 +19,7 @@ user=> (start)
 ```
 This function is defined in the ```dev/user.clj``` file.
 
-Another option is via lein:
+To stop figwheel, do:
 ```
-lein figwheel
+user=> (stop)
 ```
