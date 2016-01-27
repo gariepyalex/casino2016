@@ -133,6 +133,10 @@
   [{user-id :uid {:keys [player-name choice]} :?data}]
   (admin/admin-choose-move player-name choice))
 
+(defmethod event-handler :casino2016.admin/fill-with-bots
+  [_]
+  (admin/fill-with-bots))
+
 (defmethod event-handler :casino2016.game/kick-loosers
   [_]
   (admin/kick-loosers))

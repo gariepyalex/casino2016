@@ -32,6 +32,21 @@
             (assoc-in [:players (:name player)] player)
             (update :number-of-players inc))))))
 
+(defn- bot-name
+  [game]
+  (let [bot-names (map #(str "Bot-" %) (range))]
+    (first (filter #(not (contains? (:players game) %)) bot-names))))
+
+(defn fill-with-bots
+  [game]
+  (loop [filled-game game
+         x (- (:max-player filled-game) (:number-of-players filled-game))]
+    (if (> x 0)
+      (recur
+       (add-player filled-game (player (bot-name filled-game)))
+       (- x 1))
+      filled-game)))
+
 (defn play-turn-player [player choice ticket-prize]
   (if (= :nochoice (:choice player))
     (recur (assoc player :choice (rand-nth [:left :right])) choice ticket-prize)

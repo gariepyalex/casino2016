@@ -209,3 +209,8 @@
     (let [an-invalid-player "kawouabounga"
           updated-game (kick-player a-game an-invalid-player)]
       (is (= a-game updated-game)))))
+
+(deftest fill-with-bots-test
+  (testing "There are as many players as max players"
+    (let [filled-game (fill-with-bots (assoc a-game :max-player 16))]
+      (is (= (:number-of-players filled-game) (:max-player filled-game))))))

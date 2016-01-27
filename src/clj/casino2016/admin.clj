@@ -30,6 +30,10 @@
   (dosync
    (commute state update :game game/started-game)))
 
+(defn fill-with-bots
+  []
+  (dosync (commute state update :game game/fill-with-bots)))
+
 (defn admin-add-player
   [player-name]
   (dosync
