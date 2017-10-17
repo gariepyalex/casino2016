@@ -1,17 +1,23 @@
 # casino2016
 
-[![Floobits Status](https://floobits.com/gariepyalex/casino2016.svg)](https://floobits.com/gariepyalex/casino2016/redirect)
+This is the game presented by IFT-GLO at the 2016 casino night of the FSG festival. This is a simple gambling game where the players choose left or right to avoid incoming asteroids. 
 
-## Development Mode
 
-### Run application:
+### Run the application:
 
-To run from command-line, do
+To run the application from command-line, you first need to build the front-end code:
+```
+lein cljsbuild once
+```
+
+Then, do:
 ```
 lein run
 ```
 
-### Figwheel:
+This will start the application on port 8000.
+
+### Figwheel (development):
 
 To run from repl with figwheel (after cider-jack-in), do:
 ```
