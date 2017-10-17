@@ -5,7 +5,7 @@ festival. This is a simple gambling game where the players choose left or right
 to avoid incoming asteroids. Players can choose direction using their
 smartphone.
 
-[Casino 2016](img/casino2016.png)
+![Casino 2016](img/casino2016.png)
 
 ### Run the application:
 
