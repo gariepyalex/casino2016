@@ -1,7 +1,11 @@
 # casino2016
 
-This is the game presented by IFT-GLO at the 2016 casino night of the FSG festival. This is a simple gambling game where the players choose left or right to avoid incoming asteroids. 
+This is the game presented by IFT-GLO at the 2016 casino night of the FSG
+festival. This is a simple gambling game where the players choose left or right
+to avoid incoming asteroids. Players can choose direction using their
+smartphone.
 
+[Casino 2016](img/casino2016.png)
 
 ### Run the application:
 
